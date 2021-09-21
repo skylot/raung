@@ -1,0 +1,34 @@
+# Gradle
+.gradle/
+
+# IntelliJ Idea files
+.idea/
+.run/
+out/
+*.iml
+*.ipr
+*.iws
+.attach_pid*
+*.hprof
+
+# Eclipse files
+.classpath
+.project
+.settings/
+
+bin/
+target/
+build/
+classes/
+node_modules/
+
+*-tmp/
+**/tmp/
+
+*.class
+*.dump
+*.log
+*.cfg
+*.orig
+
+**/.DS_Store
