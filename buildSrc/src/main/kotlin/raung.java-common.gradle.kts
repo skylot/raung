@@ -1,5 +1,6 @@
 plugins {
 	java
+	checkstyle
 }
 
 group = "io.github.skylot.raung"
