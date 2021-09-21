@@ -1,0 +1,12 @@
+.version 60
+
+.class public io/github/skylot/raung/disasm/tests/integration/TestFieldAnnotations$TestCls
+.super java/lang/Object
+.source "TestFieldAnnotations.java"   #comment
+
+.field public field1 I
+    .annotation build Lio/github/skylot/raung/disasm/tests/integration/TestFieldAnnotations$TestCls$A;
+        value = 2
+        s = "A"
+    .end annotation
+.end field
