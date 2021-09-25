@@ -9,9 +9,6 @@ public class RaungTypes {
 			return "null";
 		}
 		Class<?> cls = value.getClass();
-		if (cls.isPrimitive()) {
-			return String.valueOf(value);
-		}
 		if (cls.isArray()) {
 			int length = Array.getLength(value);
 			if (length == 0) {
@@ -26,8 +23,13 @@ public class RaungTypes {
 			return sb.toString();
 		}
 		if (cls.equals(String.class)) {
-			// TODO: escape strings
-			return '"' + (String) value + '"';
+			String str = ((String) value);
+			str = str.replace("\"", "\\\"");
+			str = str.replace("\n", "\\n");
+			return String.format("\"%s\"", str);
+		}
+		if (cls.equals(Long.class)) {
+			return String.valueOf(value) + 'L';
 		}
 		// TODO:
 		return String.valueOf(value);

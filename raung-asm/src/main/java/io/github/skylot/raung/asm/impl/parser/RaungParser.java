@@ -9,35 +9,42 @@ import java.util.Queue;
 
 import org.jetbrains.annotations.Nullable;
 
+import io.github.skylot.raung.asm.impl.RaungAsmBuilder;
 import io.github.skylot.raung.asm.impl.parser.RaungTokenizer.TokenType;
 import io.github.skylot.raung.asm.impl.parser.data.ClassData;
 import io.github.skylot.raung.asm.impl.parser.directives.ClassDirectives;
 import io.github.skylot.raung.asm.impl.parser.utils.AccFlagsParser;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
-import io.github.skylot.raung.common.DirectiveToken;
+import io.github.skylot.raung.common.Directive;
 
 public class RaungParser implements Closeable {
+	private final RaungAsmBuilder args;
 	private final RaungTokenizer tokenizer;
 	@Nullable
 	private final String fileName;
 
 	private final Queue<String> tokensAhead = new ArrayDeque<>();
 
-	public RaungParser(InputStream in, @Nullable String fileName) {
+	public RaungParser(RaungAsmBuilder args, InputStream in, @Nullable String fileName) {
+		this.args = args;
 		this.tokenizer = new RaungTokenizer(Objects.requireNonNull(in));
 		this.fileName = fileName;
 	}
 
 	public ClassData parse() {
-		ClassData classData = new ClassData();
-		while (true) {
-			DirectiveToken directive = readDirective();
-			if (directive == null) {
-				break;
+		try {
+			ClassData classData = new ClassData();
+			while (true) {
+				Directive directive = readDirective();
+				if (directive == null) {
+					break;
+				}
+				ClassDirectives.process(directive, this, classData);
 			}
-			ClassDirectives.process(directive, this, classData);
+			return classData;
+		} catch (Exception e) {
+			throw new RaungAsmException("Parse error: " + e.getMessage() + " at " + formatPosition(), e);
 		}
-		return classData;
 	}
 
 	@Override
@@ -45,7 +52,11 @@ public class RaungParser implements Closeable {
 		tokenizer.close();
 	}
 
-	private String formatPlace() {
+	public RaungAsmBuilder getArgs() {
+		return args;
+	}
+
+	public String formatPosition() {
 		return String.format("%s:%s", fileName, tokenizer.tokenStartPosition());
 	}
 
@@ -71,34 +82,32 @@ public class RaungParser implements Closeable {
 		String token = readToken();
 		if (!token.equals(expectedToken)) {
 			throw new RaungAsmException(
-					String.format("Expected '%s' instead '%s' at %s", expectedToken, token, formatPlace()));
+					String.format("Expected '%s' instead '%s' at %s", expectedToken, token, formatPosition()));
 		}
 	}
 
-	public boolean consumeTokenIf(String token) {
-		String readToken = readToken();
-		if (readToken.equals(token)) {
-			return true;
+	public String tryGetToken() {
+		if (consumeNext() == TokenType.TOKEN) {
+			return consumeToken();
 		}
-		pushTokenBack(readToken);
-		return false;
+		return null;
 	}
 
 	public String peekToken() {
-		String token = readToken();
+		String token = skipToToken();
 		pushTokenBack(token);
 		return token;
 	}
 
 	@Nullable
-	public DirectiveToken readDirective() {
+	public Directive readDirective() {
 		String token = skipToToken();
 		if (token == null) {
 			return null;
 		}
-		DirectiveToken directive = DirectiveToken.parseToken(token);
+		Directive directive = Directive.parseToken(token);
 		if (directive == null) {
-			throw new RaungAsmException("Unknown directive: " + token + " in " + formatPlace());
+			throw new RaungAsmException("Unknown directive", token);
 		}
 		return directive;
 	}
@@ -121,7 +130,7 @@ public class RaungParser implements Closeable {
 		if (tokenType == TokenType.TOKEN) {
 			return consumeToken();
 		}
-		throw new RaungAsmException("Expect token but got: " + tokenType + " at " + formatPlace());
+		throw new RaungAsmException("Expect token but got " + tokenType);
 	}
 
 	public String readType() {
@@ -134,7 +143,7 @@ public class RaungParser implements Closeable {
 		try {
 			return Integer.parseInt(token);
 		} catch (NumberFormatException e) {
-			throw new RaungAsmException("Expect integer number but got: " + token + " at " + formatPlace());
+			throw new RaungAsmException("Expect integer number but got", token);
 		}
 	}
 
@@ -165,12 +174,8 @@ public class RaungParser implements Closeable {
 	}
 
 	public void lineEnd() {
-		switch (consumeNext()) {
-			case FILE_END:
-				throw new RaungAsmException("Unexpected line end at " + formatPlace());
-			case TOKEN:
-				throw new RaungAsmException(String.format(
-						"Unexpected token '%s' at %s", consumeToken(), formatPlace()));
+		if (consumeNext() == TokenType.TOKEN) {
+			throw new RaungAsmException("Unexpected token", consumeToken());
 		}
 	}
 }

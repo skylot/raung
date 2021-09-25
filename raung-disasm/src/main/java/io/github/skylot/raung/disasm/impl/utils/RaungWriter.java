@@ -1,15 +1,20 @@
 package io.github.skylot.raung.disasm.impl.utils;
 
-import io.github.skylot.raung.common.DirectiveToken;
+import io.github.skylot.raung.common.Directive;
 
 @SuppressWarnings("UnusedReturnValue")
 public class RaungWriter {
 	public static final String NL = System.getProperty("line.separator");
-	public static final String INDENT_STR = "    ";
+	public static final String INDENT_STR = "  ";
 
 	private final StringBuilder sb = new StringBuilder();
 	private String indentStr = "";
 	private int indent = 0;
+
+	public RaungWriter newLine() {
+		sb.append(NL);
+		return this;
+	}
 
 	public RaungWriter startLine() {
 		sb.append(NL);
@@ -23,13 +28,13 @@ public class RaungWriter {
 		return this;
 	}
 
-	public RaungWriter startLine(DirectiveToken directive) {
+	public RaungWriter startLine(Directive directive) {
 		startLine();
 		add(directive);
 		return this;
 	}
 
-	public RaungWriter add(DirectiveToken directive) {
+	public RaungWriter add(Directive directive) {
 		sb.append(directive.token());
 		sb.append(' ');
 		return this;
@@ -37,6 +42,13 @@ public class RaungWriter {
 
 	public RaungWriter add(String str) {
 		sb.append(str);
+		return this;
+	}
+
+	public RaungWriter addString(String str) {
+		sb.append('"');
+		sb.append(str);
+		sb.append('"');
 		return this;
 	}
 
@@ -82,6 +94,11 @@ public class RaungWriter {
 				}
 				return indSb.toString();
 		}
+	}
+
+	public RaungWriter clear() {
+		sb.setLength(0);
+		return this;
 	}
 
 	public String getCode() {

@@ -3,7 +3,7 @@ package io.github.skylot.raung.disasm.impl.visitors;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.AnnotationVisitor;
 
-import io.github.skylot.raung.common.DirectiveToken;
+import io.github.skylot.raung.common.Directive;
 import io.github.skylot.raung.disasm.impl.utils.RaungTypes;
 import io.github.skylot.raung.disasm.impl.utils.RaungWriter;
 
@@ -31,7 +31,7 @@ public class RaungAnnotationVisitor extends AnnotationVisitor {
 
 	@Override
 	public void visitEnum(@Nullable String name, String descriptor, String value) {
-		startAssign(name).add(DirectiveToken.ENUM).add(value).space().add(descriptor);
+		startAssign(name).add(Directive.ENUM).add(value).space().add(descriptor);
 	}
 
 	@Override

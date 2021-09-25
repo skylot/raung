@@ -3,32 +3,68 @@ package io.github.skylot.raung.asm.impl.parser.directives;
 import java.util.EnumMap;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
-
 import io.github.skylot.raung.asm.impl.parser.RaungParser;
+import io.github.skylot.raung.asm.impl.parser.code.ValueParser;
 import io.github.skylot.raung.asm.impl.parser.data.AnnotationData;
 import io.github.skylot.raung.asm.impl.parser.data.FieldData;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
-import io.github.skylot.raung.common.DirectiveToken;
+import io.github.skylot.raung.common.Directive;
 
-import static io.github.skylot.raung.common.DirectiveToken.ANNOTATION;
-import static io.github.skylot.raung.common.DirectiveToken.END;
-import static io.github.skylot.raung.common.DirectiveToken.SIGNATURE;
+import static io.github.skylot.raung.common.Directive.ANNOTATION;
+import static io.github.skylot.raung.common.Directive.END;
+import static io.github.skylot.raung.common.Directive.SIGNATURE;
 
 public class FieldDirectives {
 
-	private static final Map<DirectiveToken, IDirectivesProcessor<FieldData>> PROCESSOR_MAP;
+	private static final Map<Directive, IDirectivesProcessor<FieldData>> PROCESSOR_MAP;
 
 	static {
-		PROCESSOR_MAP = new EnumMap<>(DirectiveToken.class);
+		PROCESSOR_MAP = new EnumMap<>(Directive.class);
 		PROCESSOR_MAP.put(SIGNATURE, FieldDirectives::processSignature);
 		PROCESSOR_MAP.put(ANNOTATION, FieldDirectives::processAnnotation);
 	}
 
-	public static void process(DirectiveToken token, RaungParser parser, FieldData cw) {
+	public static FieldData parseField(RaungParser parser) {
+		FieldData field = new FieldData();
+		field.setAccessFlags(parser.readAccessFlags());
+		field.setName(parser.readToken());
+		field.setType(parser.readType());
+		String assign = parser.tryGetToken();
+		if (assign != null) {
+			if (!assign.equals("=")) {
+				throw new RaungAsmException("Unexpected token after field definition", assign);
+			}
+			Object value = ValueParser.process(parser.readToken());
+			field.setValue(value);
+			parser.lineEnd();
+		}
+		Directive nextToken = Directive.parseToken(parser.peekToken());
+		if (nextToken == null || !nextToken.isAllowedInField()) {
+			return field;
+		}
+		while (true) {
+			Directive directive = parser.readDirective();
+			if (directive == null) {
+				return field;
+			}
+			if (directive == END) {
+				parser.consumeToken("field");
+				parser.lineEnd();
+				return field;
+			}
+			if (!directive.isAllowedInField()) {
+				throw new RaungAsmException(String.format(
+						"Directive '%s' not allowed in field scope: %s",
+						directive.token(), parser.formatPosition()));
+			}
+			process(directive, parser, field);
+		}
+	}
+
+	private static void process(Directive token, RaungParser parser, FieldData cw) {
 		IDirectivesProcessor<FieldData> processor = PROCESSOR_MAP.get(token);
 		if (processor == null) {
-			throw new RaungAsmException("Unexpected field directive: " + token.token());
+			throw new RaungAsmException("Unexpected field directive", token.token());
 		}
 		processor.process(parser, cw);
 	}
@@ -54,28 +90,8 @@ public class FieldDirectives {
 			parser.consumeToken("=");
 			String valueToken = parser.readToken();
 			parser.lineEnd();
-			Object value = parseValue(valueToken);
+			Object value = ValueParser.process(valueToken);
 			ann.getValues().put(nameToken, value);
 		}
-	}
-
-	@NotNull
-	private static Object parseValue(String valueToken) {
-		Object value;
-		char firstChar = valueToken.charAt(0);
-		if (firstChar == '"') {
-			// String
-			value = valueToken.substring(1, valueToken.length() - 1);
-		} else if (firstChar == '-' || Character.isDigit(firstChar)) {
-			if (valueToken.contains(".")) {
-				value = Double.parseDouble(valueToken);
-			} else {
-				value = Integer.parseInt(valueToken);
-			}
-		} else {
-			// TODO: parse other types (add type descriptors?)
-			value = valueToken;
-		}
-		return value;
 	}
 }

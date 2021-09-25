@@ -15,7 +15,7 @@ import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 public class RaungTokenizer implements Closeable {
 
 	private final Reader reader;
-	private StringBuilder tokenBuffer = new StringBuilder();
+	private final StringBuilder tokenBuffer = new StringBuilder();
 
 	private State savedState = State.NONE;
 	private int line = 1;
@@ -81,17 +81,19 @@ public class RaungTokenizer implements Closeable {
 						}
 						break;
 
-					case '\"':
-						if (state == State.STRING_ESCAPE) {
+					case '"':
+						if (state != State.COMMENT) {
+							buf.append('"');
+							if (state == State.STRING) {
+								savedState = State.NONE;
+								return TokenType.TOKEN;
+							}
 							state = State.STRING;
 						}
-						buf.append('\"');
 						break;
 
 					case '\\':
-						if (state == State.STRING) {
-							state = State.STRING_ESCAPE;
-						}
+						state = State.STRING_ESCAPE;
 						break;
 
 					default:
@@ -164,6 +166,18 @@ public class RaungTokenizer implements Closeable {
 			// skip to line end
 			return state;
 		}
+		if (state == State.STRING_ESCAPE) {
+			buf.append('\\');
+			state = State.STRING;
+		}
+		if (state == State.STRING) {
+			if (cp < 0xFF) {
+				buf.append((char) cp);
+			} else {
+				buf.append(new String(Character.toChars(cp)));
+			}
+			return state;
+		}
 		boolean space;
 		if (cp < 0xFF) {
 			char ch = (char) cp;
@@ -186,7 +200,6 @@ public class RaungTokenizer implements Closeable {
 				buf.append(new String(Character.toChars(cp)));
 			}
 		}
-
 		if (state == State.TOKEN) {
 			if (space) {
 				return null;

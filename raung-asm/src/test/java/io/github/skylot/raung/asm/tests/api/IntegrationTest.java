@@ -7,7 +7,7 @@ import java.io.StringWriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-import io.github.skylot.raung.asm.impl.RaungAsmExecutor;
+import io.github.skylot.raung.asm.RaungAsm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,7 +18,7 @@ public class IntegrationTest {
 		String resPath = "/raung/" + filePath;
 		InputStream stream = this.getClass().getResourceAsStream(resPath);
 		assertThat(stream).isNotNull();
-		byte[] bytes = RaungAsmExecutor.processInputStream(stream, filePath);
+		byte[] bytes = RaungAsm.create().executeForInputStream(stream);
 		String result = parseWithASM(bytes);
 		printCode(result);
 		return result;

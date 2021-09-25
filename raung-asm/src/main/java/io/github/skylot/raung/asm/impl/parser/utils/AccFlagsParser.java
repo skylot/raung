@@ -17,6 +17,15 @@ public class AccFlagsParser {
 		map.put("static", RaungAccessFlags.STATIC);
 		map.put("final", RaungAccessFlags.FINAL);
 		map.put("synchronized", RaungAccessFlags.SYNCHRONIZED);
+		map.put("super", RaungAccessFlags.SUPER);
+		map.put("synthetic", RaungAccessFlags.SYNTHETIC);
+		map.put("varargs", RaungAccessFlags.VARARGS);
+		map.put("abstract", RaungAccessFlags.ABSTRACT);
+		map.put("enum", RaungAccessFlags.ENUM);
+		map.put("bridge", RaungAccessFlags.BRIDGE);
+		map.put("transient", RaungAccessFlags.TRANSIENT);
+		map.put("constructor", RaungAccessFlags.CONSTRUCTOR);
+		map.put("volatile", RaungAccessFlags.VOLATILE);
 		FLAGS_MAP = map;
 	}
 

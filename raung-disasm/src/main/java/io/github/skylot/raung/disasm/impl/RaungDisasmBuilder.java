@@ -61,13 +61,13 @@ public class RaungDisasmBuilder implements IRaungDisasm {
 
 	@Override
 	public String executeForSingleClass(Path input) {
-		return RaungDisasmExecutor.processSingleClass(input);
+		return RaungDisasmExecutor.processSingleClass(this, input);
 	}
 
 	@Override
 	public String executeForInputStream(InputStream input) {
 		try {
-			return RaungDisasmExecutor.processInputStream(input);
+			return RaungDisasmExecutor.processInputStream(this, input);
 		} catch (Exception e) {
 			throw new RaungDisasmException("Failed to process input stream", e);
 		}
@@ -75,6 +75,10 @@ public class RaungDisasmBuilder implements IRaungDisasm {
 
 	@Override
 	public String toString() {
-		return "RaungDisasmArgs{input=" + inputs + ", output=" + output + '}';
+		return "RaungDisasmArgs{"
+				+ "input=" + inputs
+				+ ", output=" + output
+				+ ", ignoreDebugInfo=" + ignoreDebugInfo
+				+ '}';
 	}
 }

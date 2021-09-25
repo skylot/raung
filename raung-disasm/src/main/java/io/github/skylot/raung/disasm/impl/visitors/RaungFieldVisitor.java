@@ -5,7 +5,7 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.TypePath;
 
-import io.github.skylot.raung.common.DirectiveToken;
+import io.github.skylot.raung.common.Directive;
 import io.github.skylot.raung.disasm.impl.utils.RaungWriter;
 
 public class RaungFieldVisitor extends FieldVisitor {
@@ -24,7 +24,7 @@ public class RaungFieldVisitor extends FieldVisitor {
 	public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
 		this.closeField = true;
 		String type = visible ? "runtime" : "build";
-		writer.startLine(DirectiveToken.ANNOTATION.token()).space().add(type).space().add(descriptor);
+		writer.startLine(Directive.ANNOTATION.token()).space().add(type).space().add(descriptor);
 		writer.increaseIndent();
 		return new RaungAnnotationVisitor(clsVisitor);
 	}

@@ -11,8 +11,10 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.RecordComponentVisitor;
 import org.objectweb.asm.TypePath;
 
-import io.github.skylot.raung.common.DirectiveToken;
+import io.github.skylot.raung.common.Directive;
 import io.github.skylot.raung.common.RaungAccessFlags;
+import io.github.skylot.raung.disasm.impl.RaungDisasmBuilder;
+import io.github.skylot.raung.disasm.impl.utils.RaungTypes;
 import io.github.skylot.raung.disasm.impl.utils.RaungWriter;
 
 import static io.github.skylot.raung.common.RaungAccessFlags.Scope.CLASS;
@@ -22,27 +24,32 @@ import static io.github.skylot.raung.common.RaungAccessFlags.Scope.METHOD;
 public class RaungClassVisitor extends ClassVisitor {
 
 	private final RaungWriter writer = new RaungWriter();
+	private final RaungDisasmBuilder args;
 
-	public RaungClassVisitor() {
+	private String clsFullName;
+
+	public RaungClassVisitor(RaungDisasmBuilder args) {
 		super(Opcodes.ASM9);
+		this.args = args;
 	}
 
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-		writer.add(DirectiveToken.VERSION.token()).space().add(version);
-		writer.startLine(DirectiveToken.CLASS).add(RaungAccessFlags.format(access, CLASS)).space().add(name);
-		writer.startLine(DirectiveToken.SUPER).add(superName);
+		writer.add(Directive.VERSION.token()).space().add(version);
+		writer.startLine(Directive.CLASS).add(RaungAccessFlags.format(access, CLASS)).space().add(name);
+		writer.startLine(Directive.SUPER).add(superName);
 		for (String iface : interfaces) {
-			writer.startLine(".implements ").add(iface);
+			writer.startLine(Directive.IMPLEMENTS).add(iface);
 		}
 		if (signature != null) {
-			writer.startLine(DirectiveToken.SIGNATURE).add(signature);
+			writer.startLine(Directive.SIGNATURE).add(signature);
 		}
+		this.clsFullName = name;
 	}
 
 	@Override
 	public void visitSource(String source, String debug) {
-		writer.startLine(DirectiveToken.SOURCE).add('"').add(source).add('"');
+		writer.startLine(Directive.SOURCE).add('"').add(source).add('"');
 	}
 
 	@Override
@@ -92,18 +99,17 @@ public class RaungClassVisitor extends ClassVisitor {
 	@Override
 	public FieldVisitor visitField(int access, String name, String descriptor, @Nullable String signature, Object value) {
 		writer.startLine()
-				.startLine(DirectiveToken.FIELD)
+				.startLine(Directive.FIELD)
 				.add(RaungAccessFlags.format(access, FIELD)).space()
 				.add(name).space()
 				.add(descriptor);
-
 		if (value != null) {
-			writer.add(" = ").add(String.valueOf(value));
+			writer.add(" = ").add(RaungTypes.format(value));
 		}
 		boolean closeField = false;
 		writer.increaseIndent();
 		if (signature != null) {
-			writer.startLine(DirectiveToken.SIGNATURE).add(signature);
+			writer.startLine(Directive.SIGNATURE).add(signature);
 			closeField = true;
 		}
 		return new RaungFieldVisitor(this, closeField);
@@ -112,16 +118,15 @@ public class RaungClassVisitor extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String descriptor, @Nullable String signature, String[] exceptions) {
 		writer.startLine()
-				.startLine(DirectiveToken.METHOD)
+				.startLine(Directive.METHOD)
 				.add(RaungAccessFlags.format(access, METHOD)).space()
 				.add(name).add(descriptor);
+		writer.increaseIndent();
+		writer.increaseIndent();
 		if (signature != null) {
-			writer.increaseIndent();
-			writer.startLine(DirectiveToken.SIGNATURE).add(signature);
-			writer.decreaseIndent();
+			writer.startLine(Directive.SIGNATURE).add(signature);
 		}
-		writer.startLine(".end method");
-		return null;
+		return new RaungMethodVisitor(this);
 	}
 
 	@Override
@@ -134,6 +139,14 @@ public class RaungClassVisitor extends ClassVisitor {
 
 	public RaungWriter getWriter() {
 		return writer;
+	}
+
+	public RaungDisasmBuilder getArgs() {
+		return args;
+	}
+
+	public String getClsFullName() {
+		return clsFullName;
 	}
 
 	public String getResult() {

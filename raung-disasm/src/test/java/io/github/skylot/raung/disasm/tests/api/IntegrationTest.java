@@ -4,7 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import io.github.skylot.raung.disasm.impl.RaungDisasmExecutor;
+import io.github.skylot.raung.disasm.RaungDisasm;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -23,7 +23,7 @@ public class IntegrationTest {
 	}
 
 	private String disasmSingleClass(Path input) {
-		return RaungDisasmExecutor.processSingleClass(input);
+		return RaungDisasm.create().executeForSingleClass(input);
 	}
 
 	private Path locateClassFile(Class<?> cls) {

@@ -12,6 +12,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Spec;
 
+import io.github.skylot.raung.asm.RaungAsm;
 import io.github.skylot.raung.disasm.RaungDisasm;
 import io.github.skylot.raung.disasm.api.IRaungDisasm;
 
@@ -31,12 +32,22 @@ public class RaungArgs implements Callable<Integer> {
 			name = "assemble",
 			aliases = { "a", "asm" },
 			description = "Assemble .class or .jar from .raung files",
-			mixinStandardHelpOptions = true
+			mixinStandardHelpOptions = true,
+			sortOptions = false
 	)
-	public static class AsmArgs {
+	public static class AsmArgs implements Runnable {
+		@Parameters(paramLabel = "INPUTS", arity = "1..*", description = "input directories or *.raung files")
+		private List<Path> inputs;
 
-		@Option(names = { "-a", "--algorithm" }, description = "MD5, SHA-1, SHA-256, ...")
-		private String algorithm = "MD5";
+		@Option(names = { "-o", "--output" }, description = "Output *.jar, *.class file or directory")
+		private Path output;
+
+		public void run() {
+			RaungAsm.create()
+					.inputs(inputs)
+					.output(output)
+					.execute();
+		}
 	}
 
 	@Command(
@@ -46,11 +57,12 @@ public class RaungArgs implements Callable<Integer> {
 			mixinStandardHelpOptions = true,
 			sortOptions = false
 	)
+	@SuppressWarnings("FieldCanBeLocal")
 	public static class DisasmArgs implements Runnable {
-		@Parameters(paramLabel = "FILES", arity = "1..*", description = "one or more .jar or .class files")
+		@Parameters(paramLabel = "FILES", arity = "1..*", description = "*.jar or *.class files")
 		private List<Path> files;
 
-		@Option(names = { "-o", "--output" }, required = true, description = "Output directory")
+		@Option(names = { "-o", "--output" }, description = "Output directory")
 		private Path output;
 
 		@Option(names = { "-d", "--no-debug-info" }, description = "Don't add debug info")

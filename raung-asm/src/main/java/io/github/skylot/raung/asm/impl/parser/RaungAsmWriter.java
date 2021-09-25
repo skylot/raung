@@ -10,22 +10,25 @@ import io.github.skylot.raung.asm.impl.parser.data.FieldData;
 
 public class RaungAsmWriter {
 
-	public static byte[] writeCls(ClassData classData) {
-		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-		write(cw, classData);
-		cw.visitEnd();
-		return cw.toByteArray();
-	}
-
-	private static void write(ClassWriter cw, ClassData cls) {
-		cw.visit(cls.getVersion(), cls.getAccessFlags(), cls.getName(),
-				cls.getSignature(), cls.getSuperCls(), cls.getInterfaces().toArray(new String[0]));
+	public static ClassData buildCls(ClassData cls) {
+		ClassWriter cw = cls.getAsmClassWriter();
+		visitCls(cls, cw);
 
 		for (FieldData field : cls.getFields()) {
 			FieldVisitor fv = cw.visitField(field.getAccessFlags(), field.getName(),
 					field.getType(), field.getSignature(), field.getValue());
 			addFieldAnnotations(field, fv);
 			fv.visitEnd();
+		}
+		cw.visitEnd();
+		return cls;
+	}
+
+	public static void visitCls(ClassData cls, ClassWriter cw) {
+		if (!cls.isVisited()) {
+			cw.visit(cls.getVersion(), cls.getAccessFlags(), cls.getName(),
+					cls.getSignature(), cls.getSuperCls(), cls.getInterfaces().toArray(new String[0]));
+			cls.markAsVisited();
 		}
 	}
 

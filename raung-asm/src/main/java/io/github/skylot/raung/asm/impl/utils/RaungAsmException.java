@@ -5,6 +5,10 @@ public class RaungAsmException extends RuntimeException {
 		super(message);
 	}
 
+	public RaungAsmException(String message, String token) {
+		super(message + ": '" + token + "'");
+	}
+
 	public RaungAsmException(String message, Throwable cause) {
 		super(message, cause);
 	}
