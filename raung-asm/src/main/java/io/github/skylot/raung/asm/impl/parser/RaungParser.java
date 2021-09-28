@@ -14,6 +14,7 @@ import io.github.skylot.raung.asm.impl.parser.RaungTokenizer.TokenType;
 import io.github.skylot.raung.asm.impl.parser.data.ClassData;
 import io.github.skylot.raung.asm.impl.parser.directives.ClassDirectives;
 import io.github.skylot.raung.asm.impl.parser.utils.AccFlagsParser;
+import io.github.skylot.raung.asm.impl.utils.AsmLibException;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 import io.github.skylot.raung.common.Directive;
 
@@ -42,6 +43,8 @@ public class RaungParser implements Closeable {
 				ClassDirectives.process(directive, this, classData);
 			}
 			return classData;
+		} catch (AsmLibException e) {
+			throw new RaungAsmException("Asm lib error. " + e.getMessage() + " at " + formatPosition(), e);
 		} catch (Exception e) {
 			throw new RaungAsmException("Parse error: " + e.getMessage() + " at " + formatPosition(), e);
 		}

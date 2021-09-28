@@ -1,9 +1,16 @@
 package io.github.skylot.raung.asm.impl.parser.data;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.MethodVisitor;
+
+import io.github.skylot.raung.asm.impl.asm.RaungAsmWriter;
 
 public class MethodData extends CommonData {
 	private final ClassData classData;
@@ -15,6 +22,10 @@ public class MethodData extends CommonData {
 
 	private MethodVisitor methodVisitor;
 	private int insnsCount = 0;
+
+	private Map<Integer, RaungLocalVar> localVars;
+	private final List<RaungLabel> labels = new ArrayList<>();
+	private final Map<String, RaungLabel> labelsMap = new HashMap<>();
 
 	public MethodData(ClassData classData) {
 		this.classData = classData;
@@ -40,12 +51,11 @@ public class MethodData extends CommonData {
 		return classData;
 	}
 
-	public MethodVisitor getMethodVisitor() {
+	public MethodVisitor getAsmMethodVisitor() {
+		if (methodVisitor == null) {
+			this.methodVisitor = RaungAsmWriter.visitMethod(this);
+		}
 		return methodVisitor;
-	}
-
-	public void setMethodVisitor(MethodVisitor methodVisitor) {
-		this.methodVisitor = methodVisitor;
 	}
 
 	public String getDescriptor() {
@@ -66,5 +76,51 @@ public class MethodData extends CommonData {
 
 	public void addInsn() {
 		insnsCount++;
+	}
+
+	public void addLocalVar(RaungLocalVar localVar) {
+		if (localVars == null) {
+			localVars = new HashMap<>();
+		}
+		localVars.put(localVar.getNumber(), localVar);
+	}
+
+	@Nullable
+	public RaungLocalVar getLocalVar(int number) {
+		if (this.localVars == null) {
+			return null;
+		}
+		return this.localVars.get(number);
+	}
+
+	public Collection<RaungLocalVar> getLocalVars() {
+		if (this.localVars == null) {
+			return Collections.emptyList();
+		}
+		return this.localVars.values();
+	}
+
+	public void addLabel(RaungLabel label) {
+		this.labels.add(label);
+		this.labelsMap.put(label.getName(), label);
+	}
+
+	@Nullable
+	public RaungLabel getLabel(String name) {
+		return this.labelsMap.get(name);
+	}
+
+	@Nullable
+	public RaungLabel getLabel(int pos) {
+		for (RaungLabel label : this.labels) {
+			if (label.getPos() == pos) {
+				return label;
+			}
+		}
+		return null;
+	}
+
+	public List<RaungLabel> getLabels() {
+		return labels;
 	}
 }

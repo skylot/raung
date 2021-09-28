@@ -4,15 +4,18 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import io.github.skylot.raung.asm.impl.parser.RaungParser;
+import io.github.skylot.raung.asm.impl.parser.data.AutoOption;
 import io.github.skylot.raung.asm.impl.parser.data.ClassData;
 import io.github.skylot.raung.asm.impl.parser.data.FieldData;
 import io.github.skylot.raung.asm.impl.parser.data.MethodData;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 import io.github.skylot.raung.common.Directive;
 
+import static io.github.skylot.raung.common.Directive.AUTO;
 import static io.github.skylot.raung.common.Directive.CLASS;
 import static io.github.skylot.raung.common.Directive.FIELD;
 import static io.github.skylot.raung.common.Directive.IMPLEMENTS;
+import static io.github.skylot.raung.common.Directive.INNERCLASS;
 import static io.github.skylot.raung.common.Directive.METHOD;
 import static io.github.skylot.raung.common.Directive.SIGNATURE;
 import static io.github.skylot.raung.common.Directive.SOURCE;
@@ -30,7 +33,9 @@ public class ClassDirectives {
 		map.put(SUPER, ClassDirectives::processSuper);
 		map.put(IMPLEMENTS, ClassDirectives::processInterface);
 		map.put(SIGNATURE, ClassDirectives::processSignature);
+		map.put(INNERCLASS, ClassDirectives::processInnerClass);
 		map.put(SOURCE, ClassDirectives::processSource);
+		map.put(AUTO, ClassDirectives::processAuto);
 		map.put(FIELD, ClassDirectives::processField);
 		map.put(METHOD, ClassDirectives::processMethod);
 		PROCESSOR_MAP = map;
@@ -44,36 +49,74 @@ public class ClassDirectives {
 		processor.process(parser, cw);
 	}
 
-	private static void processVersion(RaungParser parser, ClassData clsData) {
-		int version = parser.readInt();
-		clsData.setVersion(version);
+	private static void processVersion(RaungParser parser, ClassData classData) {
+		checkClassHeader(classData, VERSION);
+		classData.setVersion(parser.readInt());
 		parser.lineEnd();
 	}
 
-	private static void processClass(RaungParser parser, ClassData clsData) {
-		clsData.setAccessFlags(parser.readAccessFlags());
-		clsData.setName(parser.readToken());
+	private static void processClass(RaungParser parser, ClassData classData) {
+		checkClassHeader(classData, CLASS);
+		classData.setAccessFlags(parser.readAccessFlags());
+		classData.setName(parser.readToken());
 		parser.lineEnd();
 	}
 
 	private static void processSuper(RaungParser parser, ClassData classData) {
+		checkClassHeader(classData, SUPER);
 		classData.setSuperCls(parser.readType());
 		parser.lineEnd();
 	}
 
 	private static void processInterface(RaungParser parser, ClassData classData) {
+		checkClassHeader(classData, INNERCLASS);
 		classData.getInterfaces().add(parser.readType());
 		parser.lineEnd();
 	}
 
 	private static void processSignature(RaungParser parser, ClassData classData) {
+		checkClassHeader(classData, SIGNATURE);
 		classData.setSignature(parser.readToken());
 		parser.lineEnd();
 	}
 
-	private static void processSource(RaungParser parser, ClassData clsData) {
-		clsData.setSource(parser.readString());
+	private static void processSource(RaungParser parser, ClassData classData) {
+		checkClassHeader(classData, SOURCE);
+		classData.setSource(parser.readString());
 		parser.lineEnd();
+	}
+
+	private static void processInnerClass(RaungParser parser, ClassData classData) {
+		int accessFlags = parser.readAccessFlags();
+		String inner = parser.readToken();
+		String outer = parser.readType();
+		parser.lineEnd();
+		classData.visitCls().visitInnerClass(classData.getName(), outer, inner, accessFlags);
+	}
+
+	private static void processAuto(RaungParser parser, ClassData classData) {
+		checkClassHeader(classData, AUTO);
+		String token = parser.readToken();
+		switch (token) {
+			case "disable":
+				classData.setAuto(AutoOption.DISABLE);
+				break;
+			case "maxs":
+				classData.setAuto(AutoOption.MAXS);
+				break;
+			case "frames":
+				classData.setAuto(AutoOption.FRAMES);
+				break;
+
+			default:
+				throw new RaungAsmException("Unknown auto type: " + token + ", should be one of: 'disable', 'maxs' or 'frames'");
+		}
+	}
+
+	private static void checkClassHeader(ClassData classData, Directive directive) {
+		if (classData.isVisited()) {
+			throw new RaungAsmException(directive.token() + " directive should be placed before class body (i.e fields or methods)");
+		}
 	}
 
 	private static void processField(RaungParser parser, ClassData classData) {

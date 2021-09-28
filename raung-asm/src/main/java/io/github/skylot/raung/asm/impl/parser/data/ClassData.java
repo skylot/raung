@@ -5,20 +5,19 @@ import java.util.List;
 
 import org.objectweb.asm.ClassWriter;
 
-import io.github.skylot.raung.asm.impl.parser.RaungAsmWriter;
+import io.github.skylot.raung.asm.impl.asm.RaungAsmWriter;
 
 public class ClassData extends CommonData {
-	private final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+	private ClassWriter classWriter;
 
 	private int version;
 	private String superCls;
-	private List<String> interfaces = new ArrayList<>();
+	private final List<String> interfaces = new ArrayList<>();
 	private String source;
+	private AutoOption auto = AutoOption.DISABLE;
 
-	private List<FieldData> fields = new ArrayList<>();
-	private List<MethodData> methods = new ArrayList<>();
-
-	private boolean visited;
+	private final List<FieldData> fields = new ArrayList<>();
+	private final List<MethodData> methods = new ArrayList<>();
 
 	public int getVersion() {
 		return version;
@@ -59,23 +58,26 @@ public class ClassData extends CommonData {
 		return methods;
 	}
 
-	public ClassWriter getAsmClassWriter() {
-		return cw;
-	}
-
 	public byte[] getBytes() {
-		return cw.toByteArray();
-	}
-
-	public void visitCls() {
-		RaungAsmWriter.visitCls(this, cw);
-	}
-
-	public void markAsVisited() {
-		this.visited = true;
+		return classWriter.toByteArray();
 	}
 
 	public boolean isVisited() {
-		return visited;
+		return classWriter != null;
+	}
+
+	public AutoOption getAuto() {
+		return auto;
+	}
+
+	public void setAuto(AutoOption auto) {
+		this.auto = auto;
+	}
+
+	public ClassWriter visitCls() {
+		if (classWriter == null) {
+			classWriter = RaungAsmWriter.visitCls(this);
+		}
+		return classWriter;
 	}
 }

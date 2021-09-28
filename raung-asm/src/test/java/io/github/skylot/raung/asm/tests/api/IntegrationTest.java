@@ -17,7 +17,7 @@ public class IntegrationTest {
 		String filePath = getTestPkg() + "/" + getTestName() + ".raung";
 		String resPath = "/raung/" + filePath;
 		InputStream stream = this.getClass().getResourceAsStream(resPath);
-		assertThat(stream).isNotNull();
+		assertThat(stream).describedAs("Raung file not found: %s", resPath).isNotNull();
 		byte[] bytes = RaungAsm.create().executeForInputStream(stream);
 		String result = parseWithASM(bytes);
 		printCode(result);

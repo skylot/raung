@@ -28,12 +28,13 @@ public class RaungDisasmExecutor {
 	}
 
 	public static String processSingleClass(RaungDisasmBuilder args, Path clsFile) {
-		ValidateDisasmArgs.process(args);
+		FileUtils.checkInputFile(clsFile);
+		ValidateDisasmArgs.processOptions(args);
 		return runForSingleClass(args, clsFile).getResult();
 	}
 
 	public static String processInputStream(RaungDisasmBuilder args, InputStream in) throws IOException {
-		ValidateDisasmArgs.process(args);
+		ValidateDisasmArgs.processOptions(args);
 		return runForInputStream(args, in).getResult();
 	}
 
@@ -48,7 +49,7 @@ public class RaungDisasmExecutor {
 	private static RaungClassVisitor runForInputStream(RaungDisasmBuilder args, InputStream in) throws IOException {
 		ClassReader reader = new ClassReader(in);
 		RaungClassVisitor visitor = new RaungClassVisitor(args);
-		reader.accept(visitor, ClassReader.SKIP_FRAMES);
+		reader.accept(visitor, 0); // TODO: add option for skip frames (if '.auto frames' will be used)
 		return visitor;
 	}
 
@@ -70,7 +71,7 @@ public class RaungDisasmExecutor {
 				try (InputStream in = ZipUtils.getInputStreamForEntry(zip, entry)) {
 					saveResult(args, runForInputStream(args, in));
 				} catch (Exception e) {
-					throw new RuntimeException("Error process zip entry: " + entry.getName());
+					throw new RuntimeException("Error process zip entry: " + entry.getName(), e);
 				}
 			}
 			return null;

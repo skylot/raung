@@ -89,6 +89,11 @@ public class RaungClassVisitor extends ClassVisitor {
 
 	@Override
 	public void visitInnerClass(String name, String outerName, String innerName, int access) {
+		writer.startLine()
+				.startLine(".innerclass ")
+				.add(RaungAccessFlags.format(access, CLASS)).space()
+				.add(innerName).space()
+				.add(outerName);
 	}
 
 	@Override

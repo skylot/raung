@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.skylot.raung.asm.impl.parser.RaungAsmWriter;
+import io.github.skylot.raung.asm.impl.asm.RaungAsmWriter;
 import io.github.skylot.raung.asm.impl.parser.RaungParser;
 import io.github.skylot.raung.asm.impl.parser.data.ClassData;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
@@ -41,14 +41,15 @@ public class RaungAsmExecutor {
 		LOG.info("Done");
 	}
 
-	public static byte[] processInputStream(RaungAsmBuilder args, InputStream input, @Nullable String fileName) {
-		ValidateAsmArgs.process(args);
-		return runForInputStream(args, input, fileName).getBytes();
+	public static byte[] processSingleClass(RaungAsmBuilder args, Path inputPath) {
+		FileUtils.checkInputFile(inputPath);
+		ValidateAsmArgs.processOptions(args);
+		return runForSingleClass(args, inputPath).getBytes();
 	}
 
-	public static byte[] processSingleClass(RaungAsmBuilder args, Path inputPath) {
-		ValidateAsmArgs.process(args);
-		return runForSingleClass(args, inputPath).getBytes();
+	public static byte[] processInputStream(RaungAsmBuilder args, InputStream input, @Nullable String fileName) {
+		ValidateAsmArgs.processOptions(args);
+		return runForInputStream(args, input, fileName).getBytes();
 	}
 
 	public static ClassData runForSingleClass(RaungAsmBuilder args, Path inputPath) {

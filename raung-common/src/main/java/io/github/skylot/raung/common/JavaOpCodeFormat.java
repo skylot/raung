@@ -14,4 +14,6 @@ public enum JavaOpCodeFormat {
 	NEW_ARRAY,
 	IINC,
 	LDC,
+	TABLE_SWITCH,
+	LOOKUP_SWITCH,
 }

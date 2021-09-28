@@ -54,7 +54,9 @@ public class RaungAsmBuilder implements IRaungAsm {
 	@Override
 	public byte[] executeForInputStream(InputStream input) {
 		try {
-			return RaungAsmExecutor.processInputStream(this, input, null);
+			return RaungAsmExecutor.processInputStream(this, input, "<input>");
+		} catch (RaungAsmException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new RaungAsmException("Failed to process input stream", e);
 		}

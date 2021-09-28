@@ -26,6 +26,10 @@ public class ValidateAsmArgs {
 		if (output == null) {
 			args.output(getOutDirFromInputs(args.getInputs()));
 		}
+		processOptions(args);
+	}
+
+	public static void processOptions(RaungAsmBuilder args) {
 		LOG.debug("Effective args: {}", args);
 	}
 

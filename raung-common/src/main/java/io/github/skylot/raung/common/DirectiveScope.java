@@ -6,7 +6,7 @@ public class DirectiveScope {
 	public static final int SCOPE_FIELD = 2;
 	public static final int SCOPE_METHOD = 4;
 
-	public static final int ALL = SCOPE_CLASS | SCOPE_FIELD | SCOPE_METHOD;
+	public static final int SCOPE_ALL = SCOPE_CLASS | SCOPE_FIELD | SCOPE_METHOD;
 
 	public static boolean hasRoot(int scope) {
 		return (scope & SCOPE_CLASS) != 0;

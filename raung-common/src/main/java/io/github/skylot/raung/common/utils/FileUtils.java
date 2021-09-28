@@ -85,4 +85,16 @@ public class FileUtils {
 		}
 		return name.substring(extIdx + 1);
 	}
+
+	public static void checkInputFile(Path file) {
+		if (file == null) {
+			throw new IllegalArgumentException("Input file should be set");
+		}
+		if (!Files.exists(file)) {
+			throw new IllegalArgumentException("File not found: " + file.toAbsolutePath());
+		}
+		if (Files.isDirectory(file)) {
+			throw new IllegalArgumentException("Expect file but ogt directory: " + file.toAbsolutePath());
+		}
+	}
 }

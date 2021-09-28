@@ -1,0 +1,29 @@
+.version 50
+.class final conditions/TestAsmConditions
+.auto frames
+
+.field final synthetic val$a Ljava/util/Set;
+.field final synthetic val$b Ljava/util/Set;
+
+.method public contains(Ljava/lang/Object;)Z
+    .local 0 "this" Lconditions/TestAsmConditions;
+    .local 1 "o" Ljava/lang/Object;
+    .line 451
+    aload 0
+    getfield conditions/TestAsmConditions val$a Ljava/util/Set;
+    aload 1
+    invokeinterface java/util/Set contains (Ljava/lang/Object;)Z  # interface
+    ifne :L1
+    aload 0
+    getfield conditions/TestAsmConditions val$b Ljava/util/Set;
+    aload 1
+    invokeinterface java/util/Set contains (Ljava/lang/Object;)Z  # interface
+    ifeq :L2
+  :L1
+    iconst_1
+    goto :L3
+  :L2
+    iconst_0
+  :L3
+    ireturn
+.end method

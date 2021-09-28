@@ -30,6 +30,10 @@ public class ValidateDisasmArgs {
 				throw new RaungDisasmException("Output already exists as a regular file. Expect directory");
 			}
 		}
+		processOptions(args);
+	}
+
+	public static void processOptions(RaungDisasmBuilder args) {
 		LOG.debug("Effective args: {}", args);
 	}
 

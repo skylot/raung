@@ -1,4 +1,4 @@
-package io.github.skylot.raung.asm.tests.integration.annotations;
+package io.github.skylot.raung.asm.tests.integration.other;
 
 import org.junit.jupiter.api.Test;
 

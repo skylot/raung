@@ -67,6 +67,15 @@ public class RaungWriter {
 		return this;
 	}
 
+	public int getIndent() {
+		return indent;
+	}
+
+	public void setIndent(int indentValue) {
+		indent = indentValue;
+		indentStr = buildIndentStr();
+	}
+
 	public RaungWriter increaseIndent() {
 		indent++;
 		indentStr = buildIndentStr();
@@ -103,5 +112,10 @@ public class RaungWriter {
 
 	public String getCode() {
 		return sb.toString();
+	}
+
+	@Override
+	public String toString() {
+		return getCode();
 	}
 }

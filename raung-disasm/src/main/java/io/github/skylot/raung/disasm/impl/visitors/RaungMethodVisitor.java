@@ -12,9 +12,13 @@ import org.objectweb.asm.Attribute;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 
+import io.github.skylot.raung.common.Directive;
 import io.github.skylot.raung.common.JavaOpCodes;
+import io.github.skylot.raung.common.asm.StackType;
+import io.github.skylot.raung.disasm.impl.utils.RaungDisasmException;
 import io.github.skylot.raung.disasm.impl.utils.RaungTypes;
 import io.github.skylot.raung.disasm.impl.utils.RaungWriter;
 import io.github.skylot.raung.disasm.impl.visitors.data.LabelData;
@@ -78,6 +82,68 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitFrame(int type, int numLocal, Object[] local, int numStack, Object[] stack) {
+		RaungWriter rw = tmpWriter();
+		rw.add(Directive.STACK);
+		switch (type) {
+			case Opcodes.F_SAME:
+				rw.add("same");
+				break;
+
+			case Opcodes.F_SAME1:
+				rw.add("same1").space().add(formatStackType(stack[0]));
+				break;
+
+			case Opcodes.F_CHOP:
+				rw.add("chop").space().add(numLocal);
+				break;
+
+			case Opcodes.F_APPEND:
+				rw.add("append");
+				rw.setIndent(writer.getIndent() + 2);
+				for (int i = 0; i < numLocal; i++) {
+					rw.startLine(formatStackType(local[i]));
+				}
+				rw.setIndent(writer.getIndent());
+				rw.startLine(".end stack");
+				break;
+
+			case Opcodes.F_FULL:
+				rw.add("full");
+				rw.setIndent(writer.getIndent() + 2);
+				for (int i = 0; i < numStack; i++) {
+					rw.startLine("stack ").add(i).space().add(formatStackType(stack[i]));
+				}
+				for (int i = 0; i < numLocal; i++) {
+					rw.startLine("local ").add(i).space().add(formatStackType(local[i]));
+				}
+				rw.setIndent(writer.getIndent());
+				rw.startLine(".end stack");
+				break;
+
+			default:
+				throw new RaungDisasmException("Unexpected frame type: " + type);
+		}
+		insns.add(rw.getCode());
+	}
+
+	private String formatStackType(Object value) {
+		if (value instanceof String) {
+			return (String) value;
+		}
+		if (value instanceof Integer) {
+			StackType type = StackType.getByValue(((Integer) value));
+			if (type == null) {
+				throw new RaungDisasmException("Unknown primitive stack type: " + value);
+			}
+			return type.getName();
+		}
+		if (value instanceof Label) {
+			Label lbl = (Label) value;
+			LabelData labelData = getLabelData(lbl);
+			labelData.addUse();
+			return "Uninitialized " + labelData.getName();
+		}
+		throw new IllegalArgumentException("Unknown stack type: " + value + ", class: " + value.getClass().getName());
 	}
 
 	@Override
@@ -145,6 +211,20 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+		RaungWriter rw = tmpWriter().add("lookupswitch");
+		rw.setIndent(writer.getIndent() + 2);
+		int len = keys.length;
+		for (int i = 0; i < len; i++) {
+			LabelData label = getLabelData(labels[i]);
+			label.addUse();
+			rw.startLine().add(keys[i]).space().add(label.getName());
+		}
+		LabelData defLabel = getLabelData(dflt);
+		defLabel.addUse();
+		rw.startLine("default ").add(defLabel.getName());
+		rw.setIndent(writer.getIndent());
+		rw.startLine(".end lookupswitch");
+		insns.add(rw.getCode());
 	}
 
 	@Override
@@ -184,7 +264,7 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitLabel(Label label) {
-		getLabelData(label).setInsnRef(insns.size() - 1);
+		getLabelData(label).setInsnRef(insns.size());
 	}
 
 	@Override

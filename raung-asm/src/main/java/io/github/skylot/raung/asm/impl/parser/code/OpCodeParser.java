@@ -1,5 +1,9 @@
 package io.github.skylot.raung.asm.impl.parser.code;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -18,11 +22,13 @@ public class OpCodeParser {
 			throw new RaungAsmException("Unknown opcode", token);
 		}
 		JavaOpCodeFormat format = JavaOpCodes.getFormat(opcode);
-		parseOpcode(mv, parser, opcode, format);
+		parseOpcode(mth, mv, parser, opcode, format);
 		parser.lineEnd();
+		mth.addInsn();
 	}
 
-	private static void parseOpcode(MethodVisitor mv, RaungParser parser, int opcode, JavaOpCodeFormat format) {
+	private static void parseOpcode(MethodData mth, MethodVisitor mv, RaungParser parser,
+			int opcode, JavaOpCodeFormat format) {
 		switch (format) {
 			case NO_ARGS:
 				mv.visitInsn(opcode);
@@ -47,9 +53,7 @@ public class OpCodeParser {
 
 			case JUMP:
 				String labelName = parser.readToken().substring(1);
-				RaungLabel label = new RaungLabel(labelName);
-				mv.visitLabel(label);
-				mv.visitJumpInsn(opcode, label);
+				mv.visitJumpInsn(opcode, RaungLabel.ref(mth, labelName));
 				break;
 
 			case LDC:
@@ -64,9 +68,53 @@ public class OpCodeParser {
 				mv.visitIntInsn(Opcodes.NEWARRAY, parser.readInt());
 				break;
 
+			case LOOKUP_SWITCH:
+				parseLookupSwitch(mth, mv, parser);
+				break;
+
 			case UNKNOWN:
 				throw new RaungAsmException("TODO: Missing format for opcode: "
 						+ "0x" + Integer.toHexString(opcode) + " (" + JavaOpCodes.getName(opcode) + ")");
+
+			default:
+				throw new RaungAsmException("TODO: Missing parser for opcode: "
+						+ "0x" + Integer.toHexString(opcode) + " (" + JavaOpCodes.getName(opcode) + ")");
 		}
+	}
+
+	private static void parseLookupSwitch(MethodData mth, MethodVisitor mv, RaungParser parser) {
+		parser.lineEnd();
+		Label defLabel = null;
+		List<Integer> keys = new ArrayList<>();
+		List<RaungLabel> labels = new ArrayList<>();
+		while (true) {
+			String key = parser.skipToToken();
+			if (key == null) {
+				throw new RaungAsmException("Missing case in lookup switch");
+			}
+			if (key.equals(".end")) {
+				parser.consumeToken("lookupswitch");
+				break;
+			}
+			if (key.equals("default")) {
+				defLabel = RaungLabel.ref(mth, parser.readToken().substring(1));
+			} else {
+				keys.add(Integer.parseInt(key));
+				labels.add(RaungLabel.ref(mth, parser.readToken().substring(1)));
+			}
+		}
+		if (defLabel == null) {
+			throw new RaungAsmException("'default' case is required in lookupswtich");
+		}
+		mv.visitLookupSwitchInsn(defLabel, toIntArray(keys), labels.toArray(new Label[0]));
+	}
+
+	private static int[] toIntArray(List<Integer> list) {
+		int size = list.size();
+		int[] arr = new int[size];
+		for (int i = 0; i < size; i++) {
+			arr[i] = list.get(i);
+		}
+		return arr;
 	}
 }
