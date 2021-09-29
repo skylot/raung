@@ -23,6 +23,7 @@ import io.github.skylot.raung.disasm.impl.utils.RaungTypes;
 import io.github.skylot.raung.disasm.impl.utils.RaungWriter;
 import io.github.skylot.raung.disasm.impl.visitors.data.LabelData;
 import io.github.skylot.raung.disasm.impl.visitors.data.LocalVar;
+import io.github.skylot.raung.disasm.impl.visitors.data.TryCatchBlock;
 
 public class RaungMethodVisitor extends MethodVisitor {
 	private final RaungClassVisitor classVisitor;
@@ -188,8 +189,7 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
-		LabelData ld = getLabelData(label);
-		ld.addUse();
+		LabelData ld = getLabelData(label).addUse();
 		insns.add(formatInsn(opcode).add(ld.getName()).getCode());
 	}
 
@@ -215,12 +215,10 @@ public class RaungMethodVisitor extends MethodVisitor {
 		rw.setIndent(writer.getIndent() + 2);
 		int len = keys.length;
 		for (int i = 0; i < len; i++) {
-			LabelData label = getLabelData(labels[i]);
-			label.addUse();
+			LabelData label = getLabelData(labels[i]).addUse();
 			rw.startLine().add(keys[i]).space().add(label.getName());
 		}
-		LabelData defLabel = getLabelData(dflt);
-		defLabel.addUse();
+		LabelData defLabel = getLabelData(dflt).addUse();
 		rw.startLine("default ").add(defLabel.getName());
 		rw.setIndent(writer.getIndent());
 		rw.startLine(".end lookupswitch");
@@ -233,6 +231,11 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+		LabelData startLabel = getLabelData(start).addUse();
+		LabelData endLabel = getLabelData(end).addUse();
+		LabelData handlerLabel = getLabelData(handler).addUse();
+		TryCatchBlock tryCatchBlock = new TryCatchBlock(startLabel, endLabel, handlerLabel, type);
+		endLabel.addCatch(tryCatchBlock);
 	}
 
 	@Override
@@ -264,7 +267,8 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitLabel(Label label) {
-		getLabelData(label).setInsnRef(insns.size());
+		LabelData ld = getLabelData(label);
+		ld.setInsnRef(insns.size());
 	}
 
 	@Override
@@ -276,41 +280,58 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitEnd() {
-		Map<Integer, LabelData> labels = this.labels.values().stream()
-				.filter(ld -> ld.getUseCount() != 0
-						|| !ld.getStartVars().isEmpty()
-						|| !ld.getEndVars().isEmpty())
+		Map<Integer, LabelData> labelsMap = labels.values().stream()
+				.filter(LabelData::isUsed)
 				.collect(Collectors.toMap(LabelData::getInsnRef, ld -> ld));
 		int insnsCount = insns.size();
 		for (int i = 0; i < insnsCount; i++) {
-			LabelData labelData = labels.get(i);
+			LabelData labelData = labelsMap.get(i);
 			if (labelData != null) {
-				if (labelData.getUseCount() != 0) {
-					writer.decreaseIndent();
-					writer.startLine().add(labelData.getName());
-					writer.increaseIndent();
-				}
-				for (LocalVar startVar : labelData.getStartVars()) {
-					writer.startLine(".local")
-							.space().add(startVar.getIndex())
-							.space().addString(startVar.getName())
-							.space().add(startVar.getType());
-					if (startVar.getSignature() != null) {
-						writer.space().add(startVar.getSignature());
-					}
-				}
+				handleLabelDataBeforeInsn(labelData);
 			}
-			String insn = insns.get(i);
-			writer.startLine(insn);
-			if (labelData != null && !labelData.getEndVars().isEmpty() && i != insnsCount - 1) {
-				for (LocalVar endVar : labelData.getEndVars()) {
-					writer.startLine(".end local ").add(endVar.getIndex()).add(" # ").addString(endVar.getName());
-				}
+			writer.startLine(insns.get(i));
+			if (labelData != null) {
+				handleLabelDataAfterInsn(labelData, i == insnsCount - 1);
 			}
 		}
-		writer.decreaseIndent();
-		writer.decreaseIndent();
+		writer.setIndent(0);
 		writer.startLine(".end method");
+	}
+
+	private void handleLabelDataBeforeInsn(LabelData labelData) {
+		if (labelData.getUseCount() != 0) {
+			writer.decreaseIndent();
+			writer.startLine().add(labelData.getName());
+			writer.increaseIndent();
+		}
+		for (LocalVar startVar : labelData.getStartVars()) {
+			writer.startLine(".local")
+					.space().add(startVar.getIndex())
+					.space().addString(startVar.getName())
+					.space().add(startVar.getType());
+			if (startVar.getSignature() != null) {
+				writer.space().add(startVar.getSignature());
+			}
+		}
+		if (!labelData.getCatches().isEmpty()) {
+			for (TryCatchBlock catchBlock : labelData.getCatches()) {
+				String type = catchBlock.getType();
+				writer.startLine(Directive.CATCH)
+						.add(type == null ? "all" : type)
+						.space().add(catchBlock.getStart().getName())
+						.space().add("..")
+						.space().add(catchBlock.getEnd().getName())
+						.space().add("goto").space().add(catchBlock.getHandler().getName());
+			}
+		}
+	}
+
+	private void handleLabelDataAfterInsn(LabelData labelData, boolean lastInsn) {
+		if (!lastInsn && !labelData.getEndVars().isEmpty()) {
+			for (LocalVar endVar : labelData.getEndVars()) {
+				writer.startLine(".end local ").add(endVar.getIndex()).add(" # ").addString(endVar.getName());
+			}
+		}
 	}
 
 	private LabelData getLabelData(Label label) {

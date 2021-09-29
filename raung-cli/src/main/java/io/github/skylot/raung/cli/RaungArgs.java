@@ -4,6 +4,9 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import picocli.AutoComplete;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -27,6 +30,7 @@ import io.github.skylot.raung.disasm.api.IRaungDisasm;
 		mixinStandardHelpOptions = true
 )
 public class RaungArgs implements Callable<Integer> {
+	private static final Logger LOG = LoggerFactory.getLogger(RaungArgs.class);
 
 	@Command(
 			name = "assemble",
@@ -47,6 +51,7 @@ public class RaungArgs implements Callable<Integer> {
 					.inputs(inputs)
 					.output(output)
 					.execute();
+			LOG.info("done");
 		}
 	}
 
@@ -76,6 +81,7 @@ public class RaungArgs implements Callable<Integer> {
 				disasm.ignoreDebugInfo();
 			}
 			disasm.execute();
+			LOG.info("done");
 		}
 	}
 

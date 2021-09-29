@@ -33,12 +33,11 @@ public class IntegrationTest {
 			Path classFile = locateClassFile(cls);
 			String disasm = disasmFromFile(classFile);
 			printCode(disasm);
-
 			byte[] bytes = assembleClass(disasm);
-			checkClassWithAsm(bytes);
 
-			compareResults("ASM diff", disasmWithASM(classFile), disasmWithASM(bytes));
 			compareResults("Raung diff", disasm, disasmFromBytes(bytes));
+			compareResults("ASM diff", disasmWithASM(classFile), disasmWithASM(bytes));
+			checkClassWithAsm(bytes);
 			return disasm;
 		} catch (Exception e) {
 			fail("Check failed", e);

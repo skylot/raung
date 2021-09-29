@@ -21,12 +21,14 @@ import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 import io.github.skylot.raung.common.Directive;
 import io.github.skylot.raung.common.asm.StackType;
 
+import static io.github.skylot.raung.common.Directive.CATCH;
 import static io.github.skylot.raung.common.Directive.END;
 import static io.github.skylot.raung.common.Directive.LINE;
 import static io.github.skylot.raung.common.Directive.LOCAL;
 import static io.github.skylot.raung.common.Directive.MAX;
 import static io.github.skylot.raung.common.Directive.SIGNATURE;
 import static io.github.skylot.raung.common.Directive.STACK;
+import static io.github.skylot.raung.common.Directive.THROW;
 
 public class MethodDirectives {
 
@@ -34,11 +36,13 @@ public class MethodDirectives {
 
 	static {
 		Map<Directive, IDirectivesProcessor<MethodData>> map = new EnumMap<>(Directive.class);
+		map.put(THROW, MethodDirectives::processThrows);
 		map.put(SIGNATURE, MethodDirectives::processSignature);
 		map.put(MAX, MethodDirectives::processMax);
 		map.put(LINE, MethodDirectives::processLine);
 		map.put(LOCAL, MethodDirectives::processLocal);
 		map.put(STACK, MethodDirectives::processStack);
+		map.put(CATCH, MethodDirectives::processCatch);
 		PROCESSOR_MAP = map;
 	}
 
@@ -108,6 +112,11 @@ public class MethodDirectives {
 		processor.process(parser, methodData);
 	}
 
+	private static void processThrows(RaungParser parser, MethodData methodData) {
+		methodData.addThrow(parser.readType());
+		parser.lineEnd();
+	}
+
 	private static void processSignature(RaungParser parser, MethodData methodData) {
 		methodData.setSignature(parser.readToken());
 		parser.lineEnd();
@@ -163,9 +172,8 @@ public class MethodDirectives {
 		parser.lineEnd();
 	}
 
-	private static void processLabel(MethodData mth, RaungParser parser, String token) {
+	private static void processLabel(MethodData mth, RaungParser parser, String labelName) {
 		parser.lineEnd();
-		String labelName = token.substring(1);
 		RaungLabel existLabel = mth.getLabel(labelName);
 		if (existLabel != null) {
 			if (existLabel.getPos() != -1) {
@@ -303,11 +311,22 @@ public class MethodDirectives {
 		if (type != null) {
 			return type.getValue();
 		}
-		if (token.startsWith("Uninitialized")) {
+		if (token.equals("Uninitialized")) {
 			String label = parser.readToken();
-			return RaungLabel.ref(methodData, label.substring(1));
+			return RaungLabel.ref(methodData, label);
 		}
 		// should be type
 		return token;
+	}
+
+	private static void processCatch(RaungParser parser, MethodData methodData) {
+		String typeStr = parser.readToken();
+		RaungLabel startLabel = RaungLabel.ref(methodData, parser.readToken());
+		parser.consumeToken("..");
+		RaungLabel endLabel = RaungLabel.ref(methodData, parser.readToken());
+		parser.consumeToken("goto");
+		RaungLabel handlerLabel = RaungLabel.ref(methodData, parser.readToken());
+		String type = typeStr.equals("all") ? null : typeStr;
+		methodData.getAsmMethodVisitor().visitTryCatchBlock(startLabel, endLabel, handlerLabel, type);
 	}
 }

@@ -16,7 +16,7 @@ public class MethodData extends CommonData {
 	private final ClassData classData;
 
 	private String descriptor;
-	private List<String> exceptions = new ArrayList<>();
+	private final List<String> throwsList = new ArrayList<>();
 	private int maxStack = 0;
 	private int maxLocals = 0;
 
@@ -66,8 +66,12 @@ public class MethodData extends CommonData {
 		this.descriptor = descriptor;
 	}
 
-	public List<String> getExceptions() {
-		return exceptions;
+	public List<String> getThrows() {
+		return throwsList;
+	}
+
+	public void addThrow(String type) {
+		this.throwsList.add(type);
 	}
 
 	public int getInsnsCount() {

@@ -37,7 +37,7 @@ public class RaungAsmWriter {
 	public static MethodVisitor visitMethod(MethodData mth) {
 		ClassWriter cw = mth.getClassData().visitCls();
 		return cw.visitMethod(mth.getAccessFlags(), mth.getName(), mth.getDescriptor(),
-				mth.getSignature(), mth.getExceptions().toArray(new String[0]));
+				mth.getSignature(), mth.getThrows().toArray(new String[0]));
 	}
 
 	private static void visitField(ClassWriter cw, FieldData field) {

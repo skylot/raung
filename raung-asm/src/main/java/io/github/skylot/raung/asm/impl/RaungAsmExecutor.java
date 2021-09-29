@@ -38,7 +38,6 @@ public class RaungAsmExecutor {
 					break;
 			}
 		}
-		LOG.info("Done");
 	}
 
 	public static byte[] processSingleClass(RaungAsmBuilder args, Path inputPath) {

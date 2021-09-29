@@ -13,6 +13,7 @@ public class LabelData {
 	private int useCount;
 	private List<LocalVar> startVars;
 	private List<LocalVar> endVars;
+	private List<TryCatchBlock> catches;
 
 	public LabelData(Label label, String name) {
 		this.label = label;
@@ -39,12 +40,9 @@ public class LabelData {
 		return useCount;
 	}
 
-	public void addUse() {
+	public LabelData addUse() {
 		this.useCount++;
-	}
-
-	public void setUseCount(int useCount) {
-		this.useCount = useCount;
+		return this;
 	}
 
 	public List<LocalVar> getStartVars() {
@@ -67,5 +65,23 @@ public class LabelData {
 			endVars = new ArrayList<>();
 		}
 		endVars.add(var);
+	}
+
+	public List<TryCatchBlock> getCatches() {
+		return catches == null ? Collections.emptyList() : catches;
+	}
+
+	public void addCatch(TryCatchBlock block) {
+		if (catches == null) {
+			catches = new ArrayList<>();
+		}
+		catches.add(block);
+	}
+
+	public boolean isUsed() {
+		return getUseCount() != 0
+				|| !getStartVars().isEmpty()
+				|| !getEndVars().isEmpty()
+				|| !getCatches().isEmpty();
 	}
 }

@@ -52,7 +52,7 @@ public class OpCodeParser {
 				break;
 
 			case JUMP:
-				String labelName = parser.readToken().substring(1);
+				String labelName = parser.readToken();
 				mv.visitJumpInsn(opcode, RaungLabel.ref(mth, labelName));
 				break;
 
@@ -97,10 +97,10 @@ public class OpCodeParser {
 				break;
 			}
 			if (key.equals("default")) {
-				defLabel = RaungLabel.ref(mth, parser.readToken().substring(1));
+				defLabel = RaungLabel.ref(mth, parser.readToken());
 			} else {
 				keys.add(Integer.parseInt(key));
-				labels.add(RaungLabel.ref(mth, parser.readToken().substring(1)));
+				labels.add(RaungLabel.ref(mth, parser.readToken()));
 			}
 		}
 		if (defLabel == null) {
