@@ -9,11 +9,11 @@ import org.objectweb.asm.Opcodes;
 
 public enum StackType {
 	TOP(Opcodes.TOP, "Top"),
-	INTEGER(Opcodes.INTEGER, "Integer"),
-	FLOAT(Opcodes.FLOAT, "Float"),
-	DOUBLE(Opcodes.DOUBLE, "Double"),
-	LONG(Opcodes.LONG, "Long"),
-	NULL(Opcodes.NULL, "Null"),
+	INTEGER(Opcodes.INTEGER, "int"),
+	FLOAT(Opcodes.FLOAT, "float"),
+	DOUBLE(Opcodes.DOUBLE, "double"),
+	LONG(Opcodes.LONG, "long"),
+	NULL(Opcodes.NULL, "null"),
 	UNINIT_THIS(Opcodes.UNINITIALIZED_THIS, "UninitializedThis");
 
 	private final Integer value;

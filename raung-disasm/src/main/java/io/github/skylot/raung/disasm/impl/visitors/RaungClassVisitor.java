@@ -90,10 +90,13 @@ public class RaungClassVisitor extends ClassVisitor {
 	@Override
 	public void visitInnerClass(String name, String outerName, String innerName, int access) {
 		writer.startLine()
-				.startLine(".innerclass ")
+				.startLine(Directive.INNERCLASS)
 				.add(RaungAccessFlags.format(access, CLASS)).space()
 				.add(innerName).space()
 				.add(outerName);
+		if (!name.equals(clsFullName)) {
+			writer.space().add(name);
+		}
 	}
 
 	@Override

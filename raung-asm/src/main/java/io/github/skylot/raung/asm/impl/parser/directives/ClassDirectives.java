@@ -90,8 +90,13 @@ public class ClassDirectives {
 		int accessFlags = parser.readAccessFlags();
 		String inner = parser.readToken();
 		String outer = parser.readType();
-		parser.lineEnd();
-		classData.visitCls().visitInnerClass(classData.getName(), outer, inner, accessFlags);
+		String name = parser.tryGetToken();
+		if (name != null) {
+			parser.lineEnd();
+		} else {
+			name = classData.getName();
+		}
+		classData.visitCls().visitInnerClass(name, outer, inner, accessFlags);
 	}
 
 	private static void processAuto(RaungParser parser, ClassData classData) {

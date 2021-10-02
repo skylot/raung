@@ -10,6 +10,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 import org.objectweb.asm.ClassReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.skylot.raung.common.utils.FileUtils;
 import io.github.skylot.raung.common.utils.ZipUtils;
@@ -18,6 +20,7 @@ import io.github.skylot.raung.disasm.impl.utils.ValidateDisasmArgs;
 import io.github.skylot.raung.disasm.impl.visitors.RaungClassVisitor;
 
 public class RaungDisasmExecutor {
+	private static final Logger LOG = LoggerFactory.getLogger(RaungDisasmExecutor.class);
 
 	public static void process(RaungDisasmBuilder args) {
 		ValidateDisasmArgs.process(args);
@@ -71,7 +74,7 @@ public class RaungDisasmExecutor {
 				try (InputStream in = ZipUtils.getInputStreamForEntry(zip, entry)) {
 					saveResult(args, runForInputStream(args, in));
 				} catch (Exception e) {
-					throw new RuntimeException("Error process zip entry: " + entry.getName(), e);
+					LOG.error("Error process zip entry: {}", entry.getName(), e);
 				}
 			}
 			return null;

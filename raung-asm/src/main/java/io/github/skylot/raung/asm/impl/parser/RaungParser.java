@@ -16,6 +16,7 @@ import io.github.skylot.raung.asm.impl.parser.directives.ClassDirectives;
 import io.github.skylot.raung.asm.impl.parser.utils.AccFlagsParser;
 import io.github.skylot.raung.asm.impl.utils.AsmLibException;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
+import io.github.skylot.raung.asm.impl.utils.RaungAsmTokenException;
 import io.github.skylot.raung.common.Directive;
 
 public class RaungParser implements Closeable {
@@ -45,6 +46,8 @@ public class RaungParser implements Closeable {
 			return classData;
 		} catch (AsmLibException e) {
 			throw new RaungAsmException("Asm lib error. " + e.getMessage() + " at " + formatPosition(), e);
+		} catch (RaungAsmTokenException e) {
+			throw new RaungAsmException("Parse error: " + e.getMessage() + " at " + formatPosition(e.getOffsetInToken()), e);
 		} catch (Exception e) {
 			throw new RaungAsmException("Parse error: " + e.getMessage() + " at " + formatPosition(), e);
 		}
@@ -60,7 +63,11 @@ public class RaungParser implements Closeable {
 	}
 
 	public String formatPosition() {
-		return String.format("%s:%s", fileName, tokenizer.tokenStartPosition());
+		return fileName + ':' + tokenizer.tokenStartPosition();
+	}
+
+	public String formatPosition(int offsetInToken) {
+		return fileName + ':' + tokenizer.tokenStartPosition(offsetInToken);
 	}
 
 	private TokenType consumeNext() {

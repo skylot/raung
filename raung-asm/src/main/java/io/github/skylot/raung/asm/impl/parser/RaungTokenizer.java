@@ -19,7 +19,7 @@ public class RaungTokenizer implements Closeable {
 
 	private State savedState = State.NONE;
 	private int line = 1;
-	private int column;
+	private int column = 1;
 
 	public RaungTokenizer(InputStream in) {
 		this.reader = new BufferedReader(new InputStreamReader(in));
@@ -93,7 +93,12 @@ public class RaungTokenizer implements Closeable {
 						break;
 
 					case '\\':
-						state = State.STRING_ESCAPE;
+						if (state == State.STRING_ESCAPE) {
+							buf.append("\\\\"); // ignore this escape (will handle in value parser)
+							state = State.STRING;
+						} else {
+							state = State.STRING_ESCAPE;
+						}
 						break;
 
 					default:
@@ -214,7 +219,7 @@ public class RaungTokenizer implements Closeable {
 
 	private void newLine() {
 		line++;
-		column = 0;
+		column = 1;
 	}
 
 	private int consumeChar() throws IOException {
@@ -233,5 +238,9 @@ public class RaungTokenizer implements Closeable {
 
 	public String tokenStartPosition() {
 		return String.format("%d:%d", line, column - tokenBuffer.length());
+	}
+
+	public String tokenStartPosition(int offsetInToken) {
+		return String.format("%d:%d", line, column - tokenBuffer.length() + offsetInToken);
 	}
 }
