@@ -10,6 +10,7 @@ import io.github.skylot.raung.asm.impl.parser.data.FieldData;
 import io.github.skylot.raung.asm.impl.parser.data.MethodData;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 import io.github.skylot.raung.common.Directive;
+import io.github.skylot.raung.common.RaungAccessFlags.Scope;
 
 import static io.github.skylot.raung.common.Directive.AUTO;
 import static io.github.skylot.raung.common.Directive.CLASS;
@@ -57,7 +58,7 @@ public class ClassDirectives {
 
 	private static void processClass(RaungParser parser, ClassData classData) {
 		checkClassHeader(classData, CLASS);
-		classData.setAccessFlags(parser.readAccessFlags());
+		classData.setAccessFlags(parser.readAccessFlags(Scope.CLASS));
 		classData.setName(parser.readToken());
 		parser.lineEnd();
 	}
@@ -87,7 +88,7 @@ public class ClassDirectives {
 	}
 
 	private static void processInnerClass(RaungParser parser, ClassData classData) {
-		int accessFlags = parser.readAccessFlags();
+		int accessFlags = parser.readAccessFlags(Scope.CLASS);
 		String inner = parser.readToken();
 		String outer = parser.readType();
 		String name = parser.tryGetToken();

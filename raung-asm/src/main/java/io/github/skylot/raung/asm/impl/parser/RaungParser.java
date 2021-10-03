@@ -18,6 +18,7 @@ import io.github.skylot.raung.asm.impl.utils.AsmLibException;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmTokenException;
 import io.github.skylot.raung.common.Directive;
+import io.github.skylot.raung.common.RaungAccessFlags;
 
 public class RaungParser implements Closeable {
 	private final RaungAsmBuilder args;
@@ -169,11 +170,11 @@ public class RaungParser implements Closeable {
 		return token;
 	}
 
-	public int readAccessFlags() {
+	public int readAccessFlags(RaungAccessFlags.Scope scope) {
 		int accFlags = 0;
 		while (true) {
 			String token = readToken();
-			int flag = AccFlagsParser.parse(token);
+			int flag = AccFlagsParser.parse(token, scope);
 			if (flag == -1) {
 				pushTokenBack(token);
 				break;

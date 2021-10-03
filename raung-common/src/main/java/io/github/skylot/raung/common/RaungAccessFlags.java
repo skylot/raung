@@ -24,7 +24,17 @@ public class RaungAccessFlags {
 	public static final int DECLARED_SYNCHRONIZED = 0x20000;
 
 	public enum Scope {
-		CLASS, FIELD, METHOD
+		CLASS(1), FIELD(2), METHOD(4), ANY(7);
+
+		private final int flag;
+
+		Scope(int flag) {
+			this.flag = flag;
+		}
+
+		public int getFlag() {
+			return flag;
+		}
 	}
 
 	public static boolean hasFlag(int flags, int flagValue) {

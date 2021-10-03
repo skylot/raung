@@ -9,6 +9,7 @@ import io.github.skylot.raung.asm.impl.parser.data.AnnotationData;
 import io.github.skylot.raung.asm.impl.parser.data.FieldData;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 import io.github.skylot.raung.common.Directive;
+import io.github.skylot.raung.common.RaungAccessFlags.Scope;
 
 import static io.github.skylot.raung.common.Directive.ANNOTATION;
 import static io.github.skylot.raung.common.Directive.END;
@@ -26,7 +27,7 @@ public class FieldDirectives {
 
 	public static FieldData parseField(RaungParser parser) {
 		FieldData field = new FieldData();
-		field.setAccessFlags(parser.readAccessFlags());
+		field.setAccessFlags(parser.readAccessFlags(Scope.FIELD));
 		field.setName(parser.readToken());
 		field.setType(parser.readType());
 		String assign = parser.tryGetToken();

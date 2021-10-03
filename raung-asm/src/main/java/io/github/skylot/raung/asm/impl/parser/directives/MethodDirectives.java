@@ -19,6 +19,7 @@ import io.github.skylot.raung.asm.impl.parser.data.RaungLocalVar;
 import io.github.skylot.raung.asm.impl.utils.AsmLibException;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 import io.github.skylot.raung.common.Directive;
+import io.github.skylot.raung.common.RaungAccessFlags.Scope;
 import io.github.skylot.raung.common.asm.StackType;
 
 import static io.github.skylot.raung.common.Directive.CATCH;
@@ -48,7 +49,7 @@ public class MethodDirectives {
 
 	public static MethodData parseMethod(ClassData classData, RaungParser parser) {
 		MethodData mth = new MethodData(classData);
-		mth.setAccessFlags(parser.readAccessFlags());
+		mth.setAccessFlags(parser.readAccessFlags(Scope.METHOD));
 		String nameToken = parser.readToken();
 		int argsStart = nameToken.indexOf('(');
 		if (argsStart == -1) {

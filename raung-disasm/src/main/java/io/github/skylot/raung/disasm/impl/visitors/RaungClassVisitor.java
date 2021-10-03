@@ -126,10 +126,11 @@ public class RaungClassVisitor extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String descriptor,
 			@Nullable String signature, @Nullable String[] exceptions) {
-		writer.startLine()
-				.startLine(Directive.METHOD)
-				.add(RaungAccessFlags.format(access, METHOD)).space()
-				.add(name).add(descriptor);
+		writer.startLine().startLine(Directive.METHOD);
+		if (access != 0) {
+			writer.add(RaungAccessFlags.format(access, METHOD)).space();
+		}
+		writer.add(name).add(descriptor);
 		writer.setIndent(2);
 		if (exceptions != null) {
 			for (String exc : exceptions) {
