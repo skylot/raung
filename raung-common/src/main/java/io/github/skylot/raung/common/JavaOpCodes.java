@@ -9,11 +9,10 @@ import static io.github.skylot.raung.common.JavaOpCodeFormat.INT;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.INVOKE_DYNAMIC;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.JUMP;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.LDC;
-import static io.github.skylot.raung.common.JavaOpCodeFormat.LOOKUP_SWITCH;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.METHOD;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.NEW_ARRAY;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.NO_ARGS;
-import static io.github.skylot.raung.common.JavaOpCodeFormat.TABLE_SWITCH;
+import static io.github.skylot.raung.common.JavaOpCodeFormat.SWITCH;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.TYPE;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.UNKNOWN;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.VAR;
@@ -197,8 +196,8 @@ public class JavaOpCodes {
 		add(0xa7, "goto", JUMP);
 		add(0xa8, "jsr", UNKNOWN);
 		add(0xa9, "ret", UNKNOWN);
-		add(0xaa, "tableswitch", TABLE_SWITCH);
-		add(0xab, "lookupswitch", LOOKUP_SWITCH);
+		add(0xaa, "tableswitch", SWITCH);
+		add(0xab, "lookupswitch", SWITCH);
 		add(0xac, "ireturn", NO_ARGS);
 		add(0xad, "lreturn", NO_ARGS);
 		add(0xae, "freturn", NO_ARGS);
@@ -227,12 +226,18 @@ public class JavaOpCodes {
 		add(0xc5, "multianewarray", UNKNOWN);
 		add(0xc6, "ifnull", JUMP);
 		add(0xc7, "ifnonnull", JUMP);
+
+		alias("switch", 0xaa);
 	}
 
 	private static void add(int opcode, String name, JavaOpCodeFormat format) {
 		OPCODES[opcode] = name;
 		NAMES_MAP.put(name, opcode);
 		OPCODES_FORMAT[opcode] = format;
+	}
+
+	private static void alias(String name, int opcode) {
+		NAMES_MAP.put(name, opcode);
 	}
 
 	public static String getName(int opcode) {

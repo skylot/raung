@@ -213,19 +213,29 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+		RaungWriter rw = tmpWriter().add("tableswitch");
+		rw.setIndent(writer.getIndent() + 1);
+		int l = 0;
+		for (int i = min; i <= max; i++) {
+			LabelData label = getLabelData(labels[l++]).addUse();
+			rw.startLine().add(i).space().add(label.getName());
+		}
+		rw.startLine("default ").add(getLabelData(dflt).addUse().getName());
+		rw.setIndent(writer.getIndent());
+		rw.startLine(".end tableswitch");
+		insns.add(rw.getCode());
 	}
 
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
 		RaungWriter rw = tmpWriter().add("lookupswitch");
-		rw.setIndent(writer.getIndent() + 2);
+		rw.setIndent(writer.getIndent() + 1);
 		int len = keys.length;
 		for (int i = 0; i < len; i++) {
 			LabelData label = getLabelData(labels[i]).addUse();
 			rw.startLine().add(keys[i]).space().add(label.getName());
 		}
-		LabelData defLabel = getLabelData(dflt).addUse();
-		rw.startLine("default ").add(defLabel.getName());
+		rw.startLine("default ").add(getLabelData(dflt).addUse().getName());
 		rw.setIndent(writer.getIndent());
 		rw.startLine(".end lookupswitch");
 		insns.add(rw.getCode());
