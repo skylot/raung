@@ -6,6 +6,7 @@ import java.util.Map;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.FIELD;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.IINC;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.INT;
+import static io.github.skylot.raung.common.JavaOpCodeFormat.INVOKE_DYNAMIC;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.JUMP;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.LDC;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.LOOKUP_SWITCH;
@@ -212,7 +213,7 @@ public class JavaOpCodes {
 		add(0xb7, "invokespecial", METHOD);
 		add(0xb8, "invokestatic", METHOD);
 		add(0xb9, "invokeinterface", METHOD);
-		add(0xba, "invokedynamic", METHOD);
+		add(0xba, "invokedynamic", INVOKE_DYNAMIC);
 		add(0xbb, "new", TYPE);
 		add(0xbc, "newarray", NEW_ARRAY);
 		add(0xbd, "anewarray", TYPE);

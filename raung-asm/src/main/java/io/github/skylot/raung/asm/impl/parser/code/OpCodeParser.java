@@ -33,15 +33,19 @@ public class OpCodeParser {
 			case NO_ARGS:
 				mv.visitInsn(opcode);
 				break;
+
 			case INT:
 				mv.visitIntInsn(opcode, parser.readInt());
 				break;
+
 			case TYPE:
 				mv.visitTypeInsn(opcode, parser.readToken());
 				break;
+
 			case FIELD:
 				mv.visitFieldInsn(opcode, parser.readToken(), parser.readToken(), parser.readToken());
 				break;
+
 			case METHOD:
 				boolean iface = opcode == Opcodes.INVOKEINTERFACE;
 				mv.visitMethodInsn(opcode, parser.readToken(), parser.readToken(), parser.readToken(), iface);
@@ -70,6 +74,10 @@ public class OpCodeParser {
 
 			case LOOKUP_SWITCH:
 				parseLookupSwitch(mth, mv, parser);
+				break;
+
+			case INVOKE_DYNAMIC:
+				InvokeDynamicParser.parse(mv, parser);
 				break;
 
 			case UNKNOWN:

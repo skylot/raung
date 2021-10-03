@@ -6,6 +6,8 @@ import org.objectweb.asm.ConstantDynamic;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Type;
 
+import io.github.skylot.raung.common.asm.HandleTag;
+
 public class RaungTypes {
 
 	public static String format(Object value) {
@@ -37,7 +39,7 @@ public class RaungTypes {
 			return formatConstArray(value);
 		}
 		if (value instanceof Handle) {
-			return "Handle:" + value;
+			return formatHandle(((Handle) value));
 		}
 		if (value instanceof ConstantDynamic) {
 			return "ConstantDynamic:" + value;
@@ -54,7 +56,7 @@ public class RaungTypes {
 			case Type.ARRAY:
 				return type.toString();
 			case Type.METHOD:
-				return "Method:" + type;
+				return ".methodtype " + type.getDescriptor();
 			default:
 				throw new RaungDisasmException("Unexpected type of constant value: " + value
 						+ ", class: " + value.getClass().getName());
@@ -92,5 +94,10 @@ public class RaungTypes {
 			return "Double.MAX_VALUE";
 		}
 		return Double.toString(value);
+	}
+
+	public static String formatHandle(Handle handle) {
+		return ".handle " + HandleTag.getByValue(handle.getTag()).getName()
+				+ " " + handle.getOwner() + ' ' + handle.getName() + ' ' + handle.getDesc();
 	}
 }

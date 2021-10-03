@@ -1,7 +1,6 @@
 package io.github.skylot.raung.disasm.impl.visitors;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,7 +131,7 @@ public class RaungMethodVisitor extends MethodVisitor {
 			return (String) value;
 		}
 		if (value instanceof Integer) {
-			StackType type = StackType.getByValue(((Integer) value));
+			StackType type = StackType.getByValue((Integer) value);
 			if (type == null) {
 				throw new RaungDisasmException("Unknown primitive stack type: " + value);
 			}
@@ -175,16 +174,23 @@ public class RaungMethodVisitor extends MethodVisitor {
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
 		RaungWriter rw = formatInsn(opcode).add(owner).space().add(name).space().add(descriptor);
-		if (isInterface) {
+		if (isInterface && opcode != Opcodes.INVOKEINTERFACE) {
 			rw.add("  # interface");
 		}
 		insns.add(rw.getCode());
 	}
 
 	@Override
-	public void visitInvokeDynamicInsn(String name, String descriptor, Handle bootstrapMethodHandle, Object... bootstrapMethodArguments) {
-		insns.add(String.format("invoke-dynamic %s %s %s %s",
-				name, descriptor, bootstrapMethodHandle.toString(), Arrays.toString(bootstrapMethodArguments)));
+	public void visitInvokeDynamicInsn(String name, String descriptor, Handle mthHandle, Object... args) {
+		RaungWriter rw = tmpWriter().add("invokedynamic").space().add(name).space().add(descriptor);
+		rw.setIndent(writer.getIndent() + 2);
+		rw.startLine(RaungTypes.formatHandle(mthHandle));
+		for (int i = 0; i < args.length; i++) {
+			rw.startLine(".arg").space().add(i).space().add(RaungTypes.format(args[i]));
+		}
+		rw.setIndent(writer.getIndent());
+		rw.startLine(".end invokedynamic");
+		insns.add(rw.getCode());
 	}
 
 	@Override

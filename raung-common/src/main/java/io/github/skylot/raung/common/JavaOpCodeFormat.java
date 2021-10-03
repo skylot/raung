@@ -16,4 +16,5 @@ public enum JavaOpCodeFormat {
 	LDC,
 	TABLE_SWITCH,
 	LOOKUP_SWITCH,
+	INVOKE_DYNAMIC,
 }
