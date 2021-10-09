@@ -16,10 +16,12 @@ import org.objectweb.asm.TypePath;
 
 import io.github.skylot.raung.common.Directive;
 import io.github.skylot.raung.common.JavaOpCodes;
+import io.github.skylot.raung.common.RaungAccessFlags;
 import io.github.skylot.raung.common.asm.StackType;
 import io.github.skylot.raung.disasm.impl.utils.RaungDisasmException;
 import io.github.skylot.raung.disasm.impl.utils.RaungTypes;
 import io.github.skylot.raung.disasm.impl.utils.RaungWriter;
+import io.github.skylot.raung.disasm.impl.utils.TypeRefUtils;
 import io.github.skylot.raung.disasm.impl.visitors.data.LabelData;
 import io.github.skylot.raung.disasm.impl.visitors.data.LocalVar;
 import io.github.skylot.raung.disasm.impl.visitors.data.TryCatchBlock;
@@ -41,39 +43,44 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitParameter(String name, int access) {
+		writer.startLine(".param").space().addString(name)
+				.space().add(RaungAccessFlags.format(access, RaungAccessFlags.Scope.PARAM));
 	}
 
 	@Override
 	public AnnotationVisitor visitAnnotationDefault() {
-		return null;
+		return RaungAnnotationVisitor.buildDefaultValueVisitor(this.classVisitor);
 	}
 
 	@Override
 	public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-		return null;
+		return RaungAnnotationVisitor.buildAnnotation(this.classVisitor, descriptor, visible);
 	}
 
 	@Override
 	public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
-		return null;
+		return RaungAnnotationVisitor.buildTypeAnnotation(this.classVisitor, typeRef, typePath, descriptor, visible);
 	}
 
 	@Override
 	public AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
+		writer.startLine("# insn annotation " + TypeRefUtils.formatPath(typeRef, typePath) + " " + descriptor + " " + visible);
 		return null;
 	}
 
 	@Override
 	public void visitAnnotableParameterCount(int parameterCount, boolean visible) {
+		// ignore
 	}
 
 	@Override
 	public AnnotationVisitor visitParameterAnnotation(int parameter, String descriptor, boolean visible) {
-		return null;
+		return RaungAnnotationVisitor.buildParamAnnotation(this.classVisitor, parameter, descriptor, visible);
 	}
 
 	@Override
 	public void visitAttribute(Attribute attribute) {
+		writer.startLine("# attribute " + attribute);
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import io.github.skylot.raung.asm.impl.parser.RaungParser;
+import io.github.skylot.raung.asm.impl.parser.code.AnnotationParser;
 import io.github.skylot.raung.asm.impl.parser.data.AutoOption;
 import io.github.skylot.raung.asm.impl.parser.data.ClassData;
 import io.github.skylot.raung.asm.impl.parser.data.FieldData;
@@ -12,6 +13,7 @@ import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 import io.github.skylot.raung.common.Directive;
 import io.github.skylot.raung.common.RaungAccessFlags.Scope;
 
+import static io.github.skylot.raung.common.Directive.ANNOTATION;
 import static io.github.skylot.raung.common.Directive.AUTO;
 import static io.github.skylot.raung.common.Directive.CLASS;
 import static io.github.skylot.raung.common.Directive.FIELD;
@@ -21,6 +23,7 @@ import static io.github.skylot.raung.common.Directive.METHOD;
 import static io.github.skylot.raung.common.Directive.SIGNATURE;
 import static io.github.skylot.raung.common.Directive.SOURCE;
 import static io.github.skylot.raung.common.Directive.SUPER;
+import static io.github.skylot.raung.common.Directive.TYPE_ANNOTATION;
 import static io.github.skylot.raung.common.Directive.VERSION;
 
 public class ClassDirectives {
@@ -39,6 +42,8 @@ public class ClassDirectives {
 		map.put(AUTO, ClassDirectives::processAuto);
 		map.put(FIELD, ClassDirectives::processField);
 		map.put(METHOD, ClassDirectives::processMethod);
+		map.put(ANNOTATION, AnnotationParser::process);
+		map.put(TYPE_ANNOTATION, AnnotationParser::processTypeAnnotation);
 		PROCESSOR_MAP = map;
 	}
 
@@ -126,7 +131,7 @@ public class ClassDirectives {
 	}
 
 	private static void processField(RaungParser parser, ClassData classData) {
-		FieldData field = FieldDirectives.parseField(parser);
+		FieldData field = FieldDirectives.parseField(classData, parser);
 		classData.getFields().add(field);
 	}
 

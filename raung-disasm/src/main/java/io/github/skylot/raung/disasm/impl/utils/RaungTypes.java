@@ -38,6 +38,9 @@ public class RaungTypes {
 		if (value.getClass().isArray()) {
 			return formatConstArray(value);
 		}
+		if (value instanceof Boolean) {
+			return value.toString();
+		}
 		if (value instanceof Handle) {
 			return formatHandle(((Handle) value));
 		}

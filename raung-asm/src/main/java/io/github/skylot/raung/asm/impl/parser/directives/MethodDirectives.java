@@ -11,6 +11,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import io.github.skylot.raung.asm.impl.parser.RaungParser;
+import io.github.skylot.raung.asm.impl.parser.code.AnnotationParser;
 import io.github.skylot.raung.asm.impl.parser.code.OpCodeParser;
 import io.github.skylot.raung.asm.impl.parser.data.ClassData;
 import io.github.skylot.raung.asm.impl.parser.data.MethodData;
@@ -22,14 +23,18 @@ import io.github.skylot.raung.common.Directive;
 import io.github.skylot.raung.common.RaungAccessFlags.Scope;
 import io.github.skylot.raung.common.asm.StackType;
 
+import static io.github.skylot.raung.common.Directive.ANNOTATION;
+import static io.github.skylot.raung.common.Directive.ANNOTATION_DEFAULT_VALUE;
 import static io.github.skylot.raung.common.Directive.CATCH;
 import static io.github.skylot.raung.common.Directive.END;
 import static io.github.skylot.raung.common.Directive.LINE;
 import static io.github.skylot.raung.common.Directive.LOCAL;
 import static io.github.skylot.raung.common.Directive.MAX;
+import static io.github.skylot.raung.common.Directive.PARAM_ANNOTATION;
 import static io.github.skylot.raung.common.Directive.SIGNATURE;
 import static io.github.skylot.raung.common.Directive.STACK;
 import static io.github.skylot.raung.common.Directive.THROW;
+import static io.github.skylot.raung.common.Directive.TYPE_ANNOTATION;
 
 public class MethodDirectives {
 
@@ -44,6 +49,10 @@ public class MethodDirectives {
 		map.put(LOCAL, MethodDirectives::processLocal);
 		map.put(STACK, MethodDirectives::processStack);
 		map.put(CATCH, MethodDirectives::processCatch);
+		map.put(ANNOTATION, AnnotationParser::process);
+		map.put(TYPE_ANNOTATION, AnnotationParser::processTypeAnnotation);
+		map.put(PARAM_ANNOTATION, AnnotationParser::processParamAnnotation);
+		map.put(ANNOTATION_DEFAULT_VALUE, AnnotationParser::processAnnotationDefaultValue);
 		PROCESSOR_MAP = map;
 	}
 

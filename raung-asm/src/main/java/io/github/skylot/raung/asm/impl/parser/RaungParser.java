@@ -7,6 +7,7 @@ import java.util.ArrayDeque;
 import java.util.Objects;
 import java.util.Queue;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import io.github.skylot.raung.asm.impl.RaungAsmBuilder;
@@ -46,12 +47,19 @@ public class RaungParser implements Closeable {
 			}
 			return classData;
 		} catch (AsmLibException e) {
-			throw new RaungAsmException("Asm lib error. " + e.getMessage() + " at " + formatPosition(), e);
+			throw new RaungAsmException(buildErrorMsg("Asm lib error", e, 0), e);
 		} catch (RaungAsmTokenException e) {
-			throw new RaungAsmException("Parse error: " + e.getMessage() + " at " + formatPosition(e.getOffsetInToken()), e);
+			throw new RaungAsmException(buildErrorMsg("Parse error", e, e.getOffsetInToken()), e);
 		} catch (Exception e) {
-			throw new RaungAsmException("Parse error: " + e.getMessage() + " at " + formatPosition(), e);
+			throw new RaungAsmException(buildErrorMsg("Parse error", e, 0), e);
 		}
+	}
+
+	@NotNull
+	private String buildErrorMsg(String desc, Exception e, int offset) {
+		return desc + ": " + e.getMessage()
+				+ " at " + fileName + ':'
+				+ tokenizer.formatMsgForCurrentPosition(offset, e.getMessage());
 	}
 
 	@Override
@@ -61,14 +69,6 @@ public class RaungParser implements Closeable {
 
 	public RaungAsmBuilder getArgs() {
 		return args;
-	}
-
-	public String formatPosition() {
-		return fileName + ':' + tokenizer.tokenStartPosition();
-	}
-
-	public String formatPosition(int offsetInToken) {
-		return fileName + ':' + tokenizer.tokenStartPosition(offsetInToken);
 	}
 
 	private TokenType consumeNext() {
@@ -90,10 +90,13 @@ public class RaungParser implements Closeable {
 	}
 
 	public void consumeToken(String expectedToken) {
-		String token = readToken();
+		TokenType tokenType = consumeNext();
+		if (tokenType != TokenType.TOKEN) {
+			throw new RaungAsmException(String.format("Expected '%s', got '%s'", expectedToken, tokenType));
+		}
+		String token = consumeToken();
 		if (!token.equals(expectedToken)) {
-			throw new RaungAsmException(
-					String.format("Expected '%s' instead '%s' at %s", expectedToken, token, formatPosition()));
+			throw new RaungAsmException(String.format("Expected '%s' instead '%s'", expectedToken, token));
 		}
 	}
 

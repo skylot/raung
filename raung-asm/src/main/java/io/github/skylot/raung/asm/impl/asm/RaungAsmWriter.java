@@ -1,11 +1,9 @@
 package io.github.skylot.raung.asm.impl.asm;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 
-import io.github.skylot.raung.asm.impl.parser.data.AnnotationData;
 import io.github.skylot.raung.asm.impl.parser.data.ClassData;
 import io.github.skylot.raung.asm.impl.parser.data.FieldData;
 import io.github.skylot.raung.asm.impl.parser.data.MethodData;
@@ -14,9 +12,6 @@ public class RaungAsmWriter {
 
 	public static ClassData buildCls(ClassData cls) {
 		ClassWriter cw = cls.visitCls();
-		for (FieldData field : cls.getFields()) {
-			visitField(cw, field);
-		}
 		cw.visitEnd();
 		return cls;
 	}
@@ -40,18 +35,8 @@ public class RaungAsmWriter {
 				mth.getSignature(), mth.getThrows().toArray(new String[0]));
 	}
 
-	private static void visitField(ClassWriter cw, FieldData field) {
-		FieldVisitor fv = cw.visitField(field.getAccessFlags(), field.getName(),
+	public static FieldVisitor visitField(ClassWriter cw, FieldData field) {
+		return cw.visitField(field.getAccessFlags(), field.getName(),
 				field.getType(), field.getSignature(), field.getValue());
-		addFieldAnnotations(field, fv);
-		fv.visitEnd();
-	}
-
-	private static void addFieldAnnotations(FieldData field, FieldVisitor fv) {
-		for (AnnotationData ann : field.getAnnotations()) {
-			AnnotationVisitor av = fv.visitAnnotation(ann.getType(), ann.isVisible());
-			ann.getValues().forEach(av::visit);
-			av.visitEnd();
-		}
 	}
 }

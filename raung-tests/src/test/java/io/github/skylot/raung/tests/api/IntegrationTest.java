@@ -45,6 +45,13 @@ public class IntegrationTest {
 		}
 	}
 
+	protected void runChecksWithInnerClasses(Class<?> cls) {
+		runChecksFor(cls);
+		for (Class<?> innerCls : cls.getClasses()) {
+			runChecksWithInnerClasses(innerCls);
+		}
+	}
+
 	private String disasmFromFile(Path input) {
 		return RaungDisasm.create().executeForSingleClass(input);
 	}

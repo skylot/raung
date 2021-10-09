@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.TypePath;
 
 import io.github.skylot.raung.asm.impl.asm.RaungAsmWriter;
 
@@ -126,5 +128,15 @@ public class MethodData extends CommonData {
 
 	public List<RaungLabel> getLabels() {
 		return labels;
+	}
+
+	@Override
+	public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+		return getAsmMethodVisitor().visitAnnotation(descriptor, visible);
+	}
+
+	@Override
+	public AnnotationVisitor visitTypeAnnotation(int ref, TypePath path, String descriptor, boolean visible) {
+		return getAsmMethodVisitor().visitTypeAnnotation(ref, path, descriptor, visible);
 	}
 }

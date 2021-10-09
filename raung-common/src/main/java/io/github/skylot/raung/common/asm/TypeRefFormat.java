@@ -1,0 +1,12 @@
+package io.github.skylot.raung.common.asm;
+
+public enum TypeRefFormat {
+	NO_ARGS,
+	TYPE_PARAM_INDEX,
+	TYPE_PARAM_BOUND_INDEX,
+	SUPER_TYPE_INDEX,
+	FORMAL_PARAM_INDEX,
+	EXCEPTION_INDEX,
+	TRY_CATCH_BLOCK_INDEX,
+	TYPE_ARGUMENT_INDEX,
+}

@@ -1,14 +1,16 @@
 package io.github.skylot.raung.asm.impl.parser.data;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.TypePath;
 
-public class CommonData {
+public abstract class CommonData {
 	private int accessFlags;
 	private String name;
-
 	private String signature;
-	private List<AnnotationData> annotations = new ArrayList<>();
+
+	public abstract AnnotationVisitor visitAnnotation(String descriptor, boolean visible);
+
+	public abstract AnnotationVisitor visitTypeAnnotation(int ref, TypePath path, String descriptor, boolean visible);
 
 	public String getSignature() {
 		return signature;
@@ -16,10 +18,6 @@ public class CommonData {
 
 	public void setSignature(String signature) {
 		this.signature = signature;
-	}
-
-	public List<AnnotationData> getAnnotations() {
-		return annotations;
 	}
 
 	public int getAccessFlags() {

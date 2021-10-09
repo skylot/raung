@@ -12,9 +12,12 @@ import org.jetbrains.annotations.Nullable;
 
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 
+import static io.github.skylot.raung.common.utils.StringCommonUtils.repeat;
+
 public class RaungTokenizer implements Closeable {
 
 	private final Reader reader;
+	private final StringBuilder lineBuffer = new StringBuilder();
 	private final StringBuilder tokenBuffer = new StringBuilder();
 
 	private State savedState = State.NONE;
@@ -61,15 +64,18 @@ public class RaungTokenizer implements Closeable {
 		State state = savedState;
 		try {
 			while (true) {
-				int cp = consumeChar();
-				switch (cp) {
-					case -1:
-						if (state == State.TOKEN) {
-							savedState = State.AT_FILE_END;
-							return TokenType.TOKEN;
-						}
-						return TokenType.FILE_END;
+				int cp = reader.read();
+				if (cp == -1) {
+					if (state == State.TOKEN) {
+						savedState = State.AT_FILE_END;
+						return TokenType.TOKEN;
+					}
+					return TokenType.FILE_END;
+				}
+				column++;
+				lineBuffer.appendCodePoint(cp);
 
+				switch (cp) {
 					case '\n':
 					case '\r':
 						return processEndLine(state, cp);
@@ -110,7 +116,7 @@ public class RaungTokenizer implements Closeable {
 				}
 			}
 		} catch (IOException e) {
-			throw new RaungAsmException("Read error at " + tokenStartPosition(), e);
+			throw new RaungAsmException("Read error", e);
 		}
 	}
 
@@ -220,11 +226,7 @@ public class RaungTokenizer implements Closeable {
 	private void newLine() {
 		line++;
 		column = 1;
-	}
-
-	private int consumeChar() throws IOException {
-		column++;
-		return this.reader.read();
+		lineBuffer.setLength(0);
 	}
 
 	private void consumeCharIf(char ch) throws IOException {
@@ -236,11 +238,28 @@ public class RaungTokenizer implements Closeable {
 		}
 	}
 
-	public String tokenStartPosition() {
-		return String.format("%d:%d", line, column - tokenBuffer.length());
+	public String formatMsgForCurrentPosition(int offsetInToken, String msg) {
+		int tokenLen = tokenBuffer.length();
+		int lineOffset = column - tokenLen - 1 + offsetInToken;
+		String pad = repeat(' ', lineOffset - 1);
+		String mark = pad + "^" + repeat('~', tokenLen - 1 - offsetInToken);
+		String msgLine = pad + "| " + msg;
+		String lineStr = readFullLine();
+		return String.format("%d:%d\n%s\n%s\n%s\n", line, lineOffset, lineStr, mark, msgLine);
 	}
 
-	public String tokenStartPosition(int offsetInToken) {
-		return String.format("%d:%d", line, column - tokenBuffer.length() + offsetInToken);
+	private String readFullLine() {
+		try {
+			while (true) {
+				int cp = this.reader.read();
+				if (cp == -1 || cp == '\n' || cp == '\r') {
+					break;
+				}
+				lineBuffer.appendCodePoint(cp);
+			}
+		} catch (Exception e) {
+			// ignore
+		}
+		return lineBuffer.toString();
 	}
 }

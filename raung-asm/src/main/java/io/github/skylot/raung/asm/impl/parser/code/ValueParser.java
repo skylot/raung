@@ -36,6 +36,12 @@ public class ValueParser {
 			}
 			return parseSpecialValue(token.substring(0, dotIdx), token.substring(dotIdx + 1));
 		}
+		if (token.equals("true")) {
+			return Boolean.TRUE;
+		}
+		if (token.equals("false")) {
+			return Boolean.FALSE;
+		}
 		// TODO: type ??
 		return Type.getObjectType(token);
 	}

@@ -54,37 +54,43 @@ public class RaungClassVisitor extends ClassVisitor {
 
 	@Override
 	public ModuleVisitor visitModule(String name, int access, String version) {
+		writer.startLine("# TODO: module");
 		return null;
 	}
 
 	@Override
 	public void visitNestHost(String nestHost) {
+		writer.startLine("# TODO: nest host: " + nestHost);
 	}
 
 	@Override
 	public void visitOuterClass(String owner, String name, String descriptor) {
+		writer.startLine("# TODO: outer class: " + owner + "." + name + "." + descriptor);
 	}
 
 	@Override
 	public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-		return null;
+		return RaungAnnotationVisitor.buildAnnotation(this, descriptor, visible);
 	}
 
 	@Override
 	public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
-		return null;
+		return RaungAnnotationVisitor.buildTypeAnnotation(this, typeRef, typePath, descriptor, visible);
 	}
 
 	@Override
 	public void visitAttribute(Attribute attribute) {
+		writer.startLine("# TODO: class attribute: " + attribute);
 	}
 
 	@Override
 	public void visitNestMember(String nestMember) {
+		writer.startLine("# TODO: class nest member: " + nestMember);
 	}
 
 	@Override
 	public void visitPermittedSubclass(String permittedSubclass) {
+		writer.startLine("# TODO: class permitted subclass: " + permittedSubclass);
 	}
 
 	@Override
@@ -101,6 +107,7 @@ public class RaungClassVisitor extends ClassVisitor {
 
 	@Override
 	public RecordComponentVisitor visitRecordComponent(String name, String descriptor, String signature) {
+		writer.startLine("# TODO: record component: " + name + " " + descriptor + " " + signature);
 		return null;
 	}
 

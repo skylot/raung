@@ -24,7 +24,11 @@ public class RaungAccessFlags {
 	public static final int DECLARED_SYNCHRONIZED = 0x20000;
 
 	public enum Scope {
-		CLASS(1), FIELD(2), METHOD(4), ANY(7);
+		CLASS(1),
+		FIELD(2),
+		METHOD(4),
+		PARAM(8),
+		ANY(15);
 
 		private final int flag;
 
@@ -101,6 +105,12 @@ public class RaungAccessFlags {
 				}
 				if (hasFlag(flags, ENUM)) {
 					code.append("enum ");
+				}
+				if (hasFlag(flags, ANNOTATION)) {
+					code.append("annotation ");
+				}
+				if (hasFlag(flags, INTERFACE)) {
+					code.append("interface ");
 				}
 				break;
 		}

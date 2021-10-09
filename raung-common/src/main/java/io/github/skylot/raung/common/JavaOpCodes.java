@@ -22,7 +22,7 @@ public class JavaOpCodes {
 	private static final int OPCODES_COUNT = 0xCA;
 
 	private static final String[] OPCODES = new String[OPCODES_COUNT];
-	private static final Map<String, Integer> NAMES_MAP = new HashMap<>(0xCA);
+	private static final Map<String, Integer> NAMES_MAP = new HashMap<>(OPCODES_COUNT);
 	private static final JavaOpCodeFormat[] OPCODES_FORMAT = new JavaOpCodeFormat[OPCODES_COUNT];
 
 	static {

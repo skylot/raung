@@ -3,7 +3,9 @@ package io.github.skylot.raung.asm.impl.parser.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.TypePath;
 
 import io.github.skylot.raung.asm.impl.asm.RaungAsmWriter;
 
@@ -79,5 +81,15 @@ public class ClassData extends CommonData {
 			classWriter = RaungAsmWriter.visitCls(this);
 		}
 		return classWriter;
+	}
+
+	@Override
+	public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+		return visitCls().visitAnnotation(descriptor, visible);
+	}
+
+	@Override
+	public AnnotationVisitor visitTypeAnnotation(int ref, TypePath path, String descriptor, boolean visible) {
+		return visitCls().visitTypeAnnotation(ref, path, descriptor, visible);
 	}
 }
