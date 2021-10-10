@@ -1,5 +1,6 @@
 package io.github.skylot.raung.asm.impl.asm;
 
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -7,6 +8,7 @@ import org.objectweb.asm.MethodVisitor;
 import io.github.skylot.raung.asm.impl.parser.data.ClassData;
 import io.github.skylot.raung.asm.impl.parser.data.FieldData;
 import io.github.skylot.raung.asm.impl.parser.data.MethodData;
+import io.github.skylot.raung.asm.impl.parser.data.TypeRefPathData;
 
 public class RaungAsmWriter {
 
@@ -38,5 +40,13 @@ public class RaungAsmWriter {
 	public static FieldVisitor visitField(ClassWriter cw, FieldData field) {
 		return cw.visitField(field.getAccessFlags(), field.getName(),
 				field.getType(), field.getSignature(), field.getValue());
+	}
+
+	public static void attachInsnAnnotation(MethodData methodData, InsnAnnotationNode insnAnn) {
+		TypeRefPathData pathData = insnAnn.getPathData();
+		int typeRef = pathData.getTypeRef().getValue();
+		AnnotationVisitor av = methodData.getAsmMethodVisitor()
+				.visitInsnAnnotation(typeRef, pathData.getPath(), insnAnn.getType(), insnAnn.isVisible());
+		insnAnn.accept(av);
 	}
 }

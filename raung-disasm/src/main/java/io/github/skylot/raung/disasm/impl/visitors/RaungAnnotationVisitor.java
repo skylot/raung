@@ -12,12 +12,9 @@ import io.github.skylot.raung.disasm.impl.utils.TypeRefUtils;
 
 public class RaungAnnotationVisitor extends AnnotationVisitor {
 
-	private final RaungClassVisitor clsVisitor;
-	private final AnnotationType type;
-
 	public static RaungAnnotationVisitor buildAnnotation(RaungClassVisitor clsVisitor, String descriptor, boolean visible) {
-		RaungAnnotationVisitor annotationVisitor = new RaungAnnotationVisitor(clsVisitor, AnnotationType.NORMAL);
 		RaungWriter writer = clsVisitor.getWriter();
+		RaungAnnotationVisitor annotationVisitor = new RaungAnnotationVisitor(clsVisitor, writer, AnnotationType.NORMAL);
 		writer.startLine(Directive.ANNOTATION).add(visible ? "runtime" : "build").space().add(descriptor);
 		writer.increaseIndent();
 		return annotationVisitor;
@@ -25,8 +22,8 @@ public class RaungAnnotationVisitor extends AnnotationVisitor {
 
 	public static AnnotationVisitor buildTypeAnnotation(RaungClassVisitor clsVisitor,
 			int typeRef, TypePath typePath, String descriptor, boolean visible) {
-		RaungAnnotationVisitor annotationVisitor = new RaungAnnotationVisitor(clsVisitor, AnnotationType.TYPE);
 		RaungWriter writer = clsVisitor.getWriter();
+		RaungAnnotationVisitor annotationVisitor = new RaungAnnotationVisitor(clsVisitor, writer, AnnotationType.TYPE);
 		writer.startLine(Directive.TYPE_ANNOTATION).add(visible ? "runtime" : "build").space().add(descriptor);
 		writer.increaseIndent();
 		String ref = TypeRefUtils.formatPath(typeRef, typePath);
@@ -37,8 +34,8 @@ public class RaungAnnotationVisitor extends AnnotationVisitor {
 	}
 
 	public static AnnotationVisitor buildParamAnnotation(RaungClassVisitor clsVisitor, int parameter, String descriptor, boolean visible) {
-		RaungAnnotationVisitor av = new RaungAnnotationVisitor(clsVisitor, AnnotationType.PARAM);
 		RaungWriter writer = clsVisitor.getWriter();
+		RaungAnnotationVisitor av = new RaungAnnotationVisitor(clsVisitor, writer, AnnotationType.PARAM);
 		writer.startLine(Directive.PARAM_ANNOTATION).add(parameter).space()
 				.add(visible ? "runtime" : "build").space().add(descriptor);
 		writer.increaseIndent();
@@ -46,16 +43,33 @@ public class RaungAnnotationVisitor extends AnnotationVisitor {
 	}
 
 	public static AnnotationVisitor buildDefaultValueVisitor(RaungClassVisitor classVisitor) {
-		RaungAnnotationVisitor av = new RaungAnnotationVisitor(classVisitor, AnnotationType.DEFAULT);
 		RaungWriter writer = classVisitor.getWriter();
+		RaungAnnotationVisitor av = new RaungAnnotationVisitor(classVisitor, writer, AnnotationType.DEFAULT);
 		writer.startLine(Directive.ANNOTATION_DEFAULT_VALUE);
 		writer.increaseIndent();
 		return av;
 	}
 
-	private RaungAnnotationVisitor(RaungClassVisitor clsVisitor, AnnotationType type) {
+	public static RaungAnnotationVisitor buildInsnAnnotation(RaungClassVisitor clsVisitor, RaungWriter writer,
+			int typeRef, TypePath typePath, String descriptor, boolean visible) {
+		RaungAnnotationVisitor annotationVisitor = new RaungAnnotationVisitor(clsVisitor, writer, AnnotationType.INSN);
+		writer.startLine(Directive.INSN_ANNOTATION).add(visible ? "runtime" : "build").space().add(descriptor);
+		writer.increaseIndent();
+		String ref = TypeRefUtils.formatPath(typeRef, typePath);
+		if (!ref.isEmpty()) {
+			writer.startLine(".ref").space().add(ref);
+		}
+		return annotationVisitor;
+	}
+
+	private final RaungClassVisitor clsVisitor;
+	private final AnnotationType type;
+	private final RaungWriter writer;
+
+	private RaungAnnotationVisitor(RaungClassVisitor clsVisitor, RaungWriter writer, AnnotationType type) {
 		super(clsVisitor.getApi());
 		this.clsVisitor = clsVisitor;
+		this.writer = writer;
 		this.type = type;
 	}
 
@@ -74,7 +88,7 @@ public class RaungAnnotationVisitor extends AnnotationVisitor {
 		startAssign(name)
 				.add('.').add(AnnotationType.SUB.getName()).space().add(descriptor)
 				.increaseIndent();
-		return new RaungAnnotationVisitor(this.clsVisitor, AnnotationType.SUB);
+		return new RaungAnnotationVisitor(this.clsVisitor, writer, AnnotationType.SUB);
 	}
 
 	@Override
@@ -82,18 +96,16 @@ public class RaungAnnotationVisitor extends AnnotationVisitor {
 		startAssign(name)
 				.add('.').add(AnnotationType.ARRAY.getName())
 				.increaseIndent();
-		return new RaungAnnotationVisitor(this.clsVisitor, AnnotationType.ARRAY);
+		return new RaungAnnotationVisitor(this.clsVisitor, writer, AnnotationType.ARRAY);
 	}
 
 	@Override
 	public void visitEnd() {
-		clsVisitor.getWriter()
-				.decreaseIndent()
+		writer.decreaseIndent()
 				.startLine(".end ").add(this.type.getName());
 	}
 
 	private RaungWriter startAssign(String name) {
-		RaungWriter writer = clsVisitor.getWriter();
 		writer.startLine();
 		if (name != null) {
 			writer.add(name).add(" = ");

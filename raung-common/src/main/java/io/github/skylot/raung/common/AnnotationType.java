@@ -2,11 +2,11 @@ package io.github.skylot.raung.common;
 
 public enum AnnotationType {
 	NORMAL("annotation"),
-	TYPE("typeannotation"),
-	PARAM("paramannotation"),
+	TYPE("type_annotation"),
+	PARAM("param_annotation"),
 	DEFAULT("default"),
-	SUB("subannotation"),
-	INSN("insnannotaion"),
+	SUB("sub_annotation"),
+	INSN("insn_annotation"),
 	ARRAY("array"),
 	;
 

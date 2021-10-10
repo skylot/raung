@@ -5,6 +5,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.TypePath;
 import org.objectweb.asm.TypeReference;
 
+import io.github.skylot.raung.asm.impl.asm.InsnAnnotationNode;
 import io.github.skylot.raung.asm.impl.parser.RaungParser;
 import io.github.skylot.raung.asm.impl.parser.data.CommonData;
 import io.github.skylot.raung.asm.impl.parser.data.MethodData;
@@ -42,6 +43,16 @@ public class AnnotationParser {
 		parse(av, parser, AnnotationType.TYPE);
 	}
 
+	public static void processInsnAnnotation(RaungParser parser, MethodData methodData) {
+		boolean visible = parseVisibility(parser);
+		String type = parser.readType();
+		parser.lineEnd();
+		TypeRefPathData pathData = parseRef(parser);
+		InsnAnnotationNode av = new InsnAnnotationNode(type, visible, pathData);
+		parse(av, parser, AnnotationType.INSN);
+		methodData.setAnnotationForNextInsn(av);
+	}
+
 	public static void processAnnotationDefaultValue(RaungParser parser, MethodData methodData) {
 		parser.lineEnd();
 		AnnotationVisitor av = methodData.getAsmMethodVisitor().visitAnnotationDefault();
@@ -62,7 +73,7 @@ public class AnnotationParser {
 			case "build":
 				return false;
 			default:
-				throw new RaungAsmException("Unknown annotation type: " + visType + ". Should be 'build' or 'runtime'");
+				throw new RaungAsmException("Unknown annotation type '" + visType + "'. Expecting 'build' or 'runtime'");
 		}
 	}
 

@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ public class TestAnnotations extends IntegrationTest {
 		}
 
 		@Retention(RetentionPolicy.RUNTIME)
-		@Target({ ElementType.TYPE_PARAMETER, ElementType.PARAMETER, ElementType.METHOD })
+		@Target({ ElementType.TYPE_PARAMETER, ElementType.PARAMETER, ElementType.METHOD, ElementType.LOCAL_VARIABLE })
 		public @interface B {
 			int i() default 7;
 		}
@@ -34,6 +35,13 @@ public class TestAnnotations extends IntegrationTest {
 		}
 
 		public @B void test1(@B(i = 0) int i, @Nullable String s) {
+		}
+
+		public <V> void test2() {
+			@SuppressWarnings("unchecked")
+			// @Nullable // TODO: support local var annotations
+			V[][] copy = (@Nullable V[][]) new Object[1][2];
+			System.out.println(Arrays.deepToString(copy));
 		}
 	}
 

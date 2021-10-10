@@ -238,14 +238,18 @@ public class RaungTokenizer implements Closeable {
 		}
 	}
 
-	public String formatMsgForCurrentPosition(int offsetInToken, String msg) {
+	public String formatMsgForCurrentPosition(int offsetInToken, String msg, @Nullable String fileName) {
 		int tokenLen = tokenBuffer.length();
 		int lineOffset = column - tokenLen - 1 + offsetInToken;
-		String pad = repeat(' ', lineOffset - 1);
-		String mark = pad + "^" + repeat('~', tokenLen - 1 - offsetInToken);
-		String msgLine = pad + "| " + msg;
-		String lineStr = readFullLine();
-		return String.format("%d:%d\n%s\n%s\n%s\n", line, lineOffset, lineStr, mark, msgLine);
+		String lineNum = Integer.toString(line);
+		String contextPadding = repeat(' ', lineNum.length() + 1) + '|';
+		String markPadding = contextPadding + repeat(' ', lineOffset - 1);
+		return repeat(' ', lineNum.length() + 1)
+				+ "at " + fileName + ':' + lineNum + ':' + lineOffset + '\n'
+				+ contextPadding + '\n'
+				+ lineNum + " |" + readFullLine() + '\n'
+				+ markPadding + '^' + repeat('~', tokenLen - 1 - offsetInToken) + '\n'
+				+ markPadding + msg + '\n';
 	}
 
 	private String readFullLine() {

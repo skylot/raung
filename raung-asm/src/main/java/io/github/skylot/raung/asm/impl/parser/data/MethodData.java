@@ -12,6 +12,7 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.TypePath;
 
+import io.github.skylot.raung.asm.impl.asm.InsnAnnotationNode;
 import io.github.skylot.raung.asm.impl.asm.RaungAsmWriter;
 
 public class MethodData extends CommonData {
@@ -28,6 +29,7 @@ public class MethodData extends CommonData {
 	private Map<Integer, RaungLocalVar> localVars;
 	private final List<RaungLabel> labels = new ArrayList<>();
 	private final Map<String, RaungLabel> labelsMap = new HashMap<>();
+	private InsnAnnotationNode insnAnnotationNode;
 
 	public MethodData(ClassData classData) {
 		this.classData = classData;
@@ -82,6 +84,10 @@ public class MethodData extends CommonData {
 
 	public void addInsn() {
 		insnsCount++;
+		if (insnAnnotationNode != null) {
+			RaungAsmWriter.attachInsnAnnotation(this, insnAnnotationNode);
+			insnAnnotationNode = null;
+		}
 	}
 
 	public void addLocalVar(RaungLocalVar localVar) {
@@ -128,6 +134,14 @@ public class MethodData extends CommonData {
 
 	public List<RaungLabel> getLabels() {
 		return labels;
+	}
+
+	public void setAnnotationForNextInsn(InsnAnnotationNode annotationNode) {
+		this.insnAnnotationNode = annotationNode;
+	}
+
+	public InsnAnnotationNode getInsnAnnotationNode() {
+		return insnAnnotationNode;
 	}
 
 	@Override

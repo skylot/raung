@@ -11,6 +11,7 @@ import static io.github.skylot.raung.common.JavaOpCodeFormat.JUMP;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.LDC;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.METHOD;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.NEW_ARRAY;
+import static io.github.skylot.raung.common.JavaOpCodeFormat.NEW_MULTI_ARRAY;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.NO_ARGS;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.SWITCH;
 import static io.github.skylot.raung.common.JavaOpCodeFormat.TYPE;
@@ -223,7 +224,7 @@ public class JavaOpCodes {
 		add(0xc2, "monitorenter", NO_ARGS);
 		add(0xc3, "monitorexit", NO_ARGS);
 		add(0xc4, "wide", UNKNOWN);
-		add(0xc5, "multianewarray", UNKNOWN);
+		add(0xc5, "multianewarray", NEW_MULTI_ARRAY);
 		add(0xc6, "ifnull", JUMP);
 		add(0xc7, "ifnonnull", JUMP);
 

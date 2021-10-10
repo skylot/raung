@@ -12,6 +12,7 @@ public enum JavaOpCodeFormat {
 
 	// special cases
 	NEW_ARRAY,
+	NEW_MULTI_ARRAY,
 	IINC,
 	LDC,
 	SWITCH,

@@ -117,7 +117,6 @@ public class RaungAccessFlags {
 		if (hasFlag(flags, SYNTHETIC)) {
 			code.append("synthetic ");
 		}
-		code.deleteCharAt(code.length() - 1); // remove trailing space
 		return code.toString();
 	}
 }

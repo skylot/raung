@@ -20,6 +20,7 @@ import static io.github.skylot.raung.common.Directive.FIELD;
 import static io.github.skylot.raung.common.Directive.IMPLEMENTS;
 import static io.github.skylot.raung.common.Directive.INNERCLASS;
 import static io.github.skylot.raung.common.Directive.METHOD;
+import static io.github.skylot.raung.common.Directive.OUTERCLASS;
 import static io.github.skylot.raung.common.Directive.SIGNATURE;
 import static io.github.skylot.raung.common.Directive.SOURCE;
 import static io.github.skylot.raung.common.Directive.SUPER;
@@ -38,6 +39,7 @@ public class ClassDirectives {
 		map.put(IMPLEMENTS, ClassDirectives::processInterface);
 		map.put(SIGNATURE, ClassDirectives::processSignature);
 		map.put(INNERCLASS, ClassDirectives::processInnerClass);
+		map.put(OUTERCLASS, ClassDirectives::processOuterClass);
 		map.put(SOURCE, ClassDirectives::processSource);
 		map.put(AUTO, ClassDirectives::processAuto);
 		map.put(FIELD, ClassDirectives::processField);
@@ -103,6 +105,13 @@ public class ClassDirectives {
 			name = classData.getName();
 		}
 		classData.visitCls().visitInnerClass(name, outer, inner, accessFlags);
+	}
+
+	private static void processOuterClass(RaungParser parser, ClassData classData) {
+		String owner = parser.readType();
+		String name = parser.readToken();
+		String descriptor = parser.readToken();
+		classData.visitCls().visitOuterClass(owner, name, descriptor);
 	}
 
 	private static void processAuto(RaungParser parser, ClassData classData) {

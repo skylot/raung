@@ -43,8 +43,23 @@ public class OpCodeParser {
 				break;
 
 			case METHOD:
-				boolean iface = opcode == Opcodes.INVOKEINTERFACE;
-				mv.visitMethodInsn(opcode, parser.readToken(), parser.readToken(), parser.readToken(), iface);
+				String owner = null;
+				boolean isInterface = opcode == Opcodes.INVOKEINTERFACE;
+				if (!isInterface) {
+					// read optional 'interface' token
+					String nextToken = parser.readToken();
+					if (nextToken.equals("interface")) {
+						isInterface = true;
+					} else {
+						owner = nextToken;
+					}
+				}
+				if (owner == null) {
+					owner = parser.readToken();
+				}
+				String name = parser.readToken();
+				String descriptor = parser.readToken();
+				mv.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
 				break;
 
 			case VAR:
@@ -66,6 +81,10 @@ public class OpCodeParser {
 
 			case NEW_ARRAY:
 				mv.visitIntInsn(Opcodes.NEWARRAY, parser.readInt());
+				break;
+
+			case NEW_MULTI_ARRAY:
+				mv.visitMultiANewArrayInsn(parser.readType(), parser.readInt());
 				break;
 
 			case SWITCH:

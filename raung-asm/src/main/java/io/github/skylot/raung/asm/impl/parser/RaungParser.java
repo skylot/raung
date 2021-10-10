@@ -57,9 +57,7 @@ public class RaungParser implements Closeable {
 
 	@NotNull
 	private String buildErrorMsg(String desc, Exception e, int offset) {
-		return desc + ": " + e.getMessage()
-				+ " at " + fileName + ':'
-				+ tokenizer.formatMsgForCurrentPosition(offset, e.getMessage());
+		return desc + "\n" + tokenizer.formatMsgForCurrentPosition(offset, e.getMessage(), fileName);
 	}
 
 	@Override

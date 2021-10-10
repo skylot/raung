@@ -27,6 +27,7 @@ import static io.github.skylot.raung.common.Directive.ANNOTATION;
 import static io.github.skylot.raung.common.Directive.ANNOTATION_DEFAULT_VALUE;
 import static io.github.skylot.raung.common.Directive.CATCH;
 import static io.github.skylot.raung.common.Directive.END;
+import static io.github.skylot.raung.common.Directive.INSN_ANNOTATION;
 import static io.github.skylot.raung.common.Directive.LINE;
 import static io.github.skylot.raung.common.Directive.LOCAL;
 import static io.github.skylot.raung.common.Directive.MAX;
@@ -52,6 +53,7 @@ public class MethodDirectives {
 		map.put(ANNOTATION, AnnotationParser::process);
 		map.put(TYPE_ANNOTATION, AnnotationParser::processTypeAnnotation);
 		map.put(PARAM_ANNOTATION, AnnotationParser::processParamAnnotation);
+		map.put(INSN_ANNOTATION, AnnotationParser::processInsnAnnotation);
 		map.put(ANNOTATION_DEFAULT_VALUE, AnnotationParser::processAnnotationDefaultValue);
 		PROCESSOR_MAP = map;
 	}

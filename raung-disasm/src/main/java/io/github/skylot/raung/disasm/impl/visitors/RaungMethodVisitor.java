@@ -1,6 +1,7 @@
 package io.github.skylot.raung.disasm.impl.visitors;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,6 @@ import io.github.skylot.raung.common.asm.StackType;
 import io.github.skylot.raung.disasm.impl.utils.RaungDisasmException;
 import io.github.skylot.raung.disasm.impl.utils.RaungTypes;
 import io.github.skylot.raung.disasm.impl.utils.RaungWriter;
-import io.github.skylot.raung.disasm.impl.utils.TypeRefUtils;
 import io.github.skylot.raung.disasm.impl.visitors.data.LabelData;
 import io.github.skylot.raung.disasm.impl.visitors.data.LocalVar;
 import io.github.skylot.raung.disasm.impl.visitors.data.TryCatchBlock;
@@ -34,6 +34,7 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	private final List<String> insns = new ArrayList<>();
 	private final Map<Label, LabelData> labels = new IdentityHashMap<>();
+	private final Map<Integer, RaungWriter> insnAttachments = new HashMap<>();
 
 	public RaungMethodVisitor(RaungClassVisitor classVisitor) {
 		super(classVisitor.getApi());
@@ -64,8 +65,11 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
-		writer.startLine("# insn annotation " + TypeRefUtils.formatPath(typeRef, typePath) + " " + descriptor + " " + visible);
-		return null;
+		RaungWriter rw = new RaungWriter().setIndent(writer.getIndent());
+		RaungAnnotationVisitor av = RaungAnnotationVisitor.buildInsnAnnotation(classVisitor, rw, typeRef, typePath, descriptor, visible);
+		// attach annotation to last instruction
+		insnAttachments.put(insns.size() - 1, rw);
+		return av;
 	}
 
 	@Override
@@ -180,10 +184,11 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-		RaungWriter rw = formatInsn(opcode).add(owner).space().add(name).space().add(descriptor);
+		RaungWriter rw = formatInsn(opcode);
 		if (isInterface && opcode != Opcodes.INVOKEINTERFACE) {
-			rw.add("  # interface");
+			rw.add("interface ");
 		}
+		rw.add(owner).space().add(name).space().add(descriptor);
 		insns.add(rw.getCode());
 	}
 
@@ -250,6 +255,7 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
+		insns.add(tmpWriter().add("multianewarray").space().add(descriptor).space().add(numDimensions).getCode());
 	}
 
 	@Override
@@ -278,6 +284,7 @@ public class RaungMethodVisitor extends MethodVisitor {
 	@Override
 	public AnnotationVisitor visitLocalVariableAnnotation(int typeRef, TypePath typePath, Label[] start, Label[] end, int[] index,
 			String descriptor, boolean visible) {
+		// TODO: support local variable annotations
 		return null;
 	}
 
@@ -312,6 +319,7 @@ public class RaungMethodVisitor extends MethodVisitor {
 			if (labelData != null) {
 				handleLabelDataBeforeInsn(labelData);
 			}
+			addInsnAttachments(i);
 			writer.startLine(insns.get(i));
 			if (labelData != null) {
 				handleLabelDataAfterInsn(labelData, i == insnsCount - 1);
@@ -319,6 +327,13 @@ public class RaungMethodVisitor extends MethodVisitor {
 		}
 		writer.setIndent(0);
 		writer.startLine(".end method");
+	}
+
+	private void addInsnAttachments(int insnOffset) {
+		RaungWriter rw = insnAttachments.get(insnOffset);
+		if (rw != null) {
+			writer.add(rw);
+		}
 	}
 
 	private void handleLabelDataBeforeInsn(LabelData labelData) {

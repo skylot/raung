@@ -65,7 +65,21 @@ public class RaungClassVisitor extends ClassVisitor {
 
 	@Override
 	public void visitOuterClass(String owner, String name, String descriptor) {
-		writer.startLine("# TODO: outer class: " + owner + "." + name + "." + descriptor);
+		writer.startLine()
+				.startLine(Directive.OUTERCLASS)
+				.add(owner).space().add(name).space().add(descriptor);
+	}
+
+	@Override
+	public void visitInnerClass(String name, String outerName, String innerName, int access) {
+		writer.startLine()
+				.startLine(Directive.INNERCLASS)
+				.add(RaungAccessFlags.format(access, CLASS))
+				.add(innerName).space()
+				.add(outerName);
+		if (!name.equals(clsFullName)) {
+			writer.space().add(name);
+		}
 	}
 
 	@Override
@@ -94,18 +108,6 @@ public class RaungClassVisitor extends ClassVisitor {
 	}
 
 	@Override
-	public void visitInnerClass(String name, String outerName, String innerName, int access) {
-		writer.startLine()
-				.startLine(Directive.INNERCLASS)
-				.add(RaungAccessFlags.format(access, CLASS)).space()
-				.add(innerName).space()
-				.add(outerName);
-		if (!name.equals(clsFullName)) {
-			writer.space().add(name);
-		}
-	}
-
-	@Override
 	public RecordComponentVisitor visitRecordComponent(String name, String descriptor, String signature) {
 		writer.startLine("# TODO: record component: " + name + " " + descriptor + " " + signature);
 		return null;
@@ -115,7 +117,7 @@ public class RaungClassVisitor extends ClassVisitor {
 	public FieldVisitor visitField(int access, String name, String descriptor, @Nullable String signature, Object value) {
 		writer.startLine()
 				.startLine(Directive.FIELD)
-				.add(RaungAccessFlags.format(access, FIELD)).space()
+				.add(RaungAccessFlags.format(access, FIELD))
 				.add(name).space()
 				.add(descriptor);
 		if (value != null) {
@@ -133,12 +135,11 @@ public class RaungClassVisitor extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String descriptor,
 			@Nullable String signature, @Nullable String[] exceptions) {
-		writer.startLine().startLine(Directive.METHOD);
-		if (access != 0) {
-			writer.add(RaungAccessFlags.format(access, METHOD)).space();
-		}
-		writer.add(name).add(descriptor);
-		writer.setIndent(2);
+		writer.newLine()
+				.startLine(Directive.METHOD)
+				.add(RaungAccessFlags.format(access, METHOD))
+				.add(name).add(descriptor)
+				.setIndent(2);
 		if (exceptions != null) {
 			for (String exc : exceptions) {
 				writer.startLine(Directive.THROW).add(exc);

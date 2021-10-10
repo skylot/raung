@@ -2,7 +2,7 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
 	id("com.github.ben-manes.versions") version "0.39.0"
-	id("com.diffplug.spotless") version "5.15.1"
+	id("com.diffplug.spotless") version "5.16.0"
 }
 
 fun isNonStable(version: String): Boolean {

@@ -67,13 +67,18 @@ public class RaungWriter {
 		return this;
 	}
 
+	public void add(RaungWriter rw) {
+		sb.append(rw.getCode());
+	}
+
 	public int getIndent() {
 		return indent;
 	}
 
-	public void setIndent(int indentValue) {
+	public RaungWriter setIndent(int indentValue) {
 		indent = indentValue;
 		indentStr = buildIndentStr();
+		return this;
 	}
 
 	public RaungWriter increaseIndent() {
