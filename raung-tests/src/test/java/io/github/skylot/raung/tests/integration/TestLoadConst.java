@@ -18,13 +18,23 @@ public class TestLoadConst extends IntegrationTest {
 					+ Character.valueOf((char) 21) + '1';
 		}
 
-		public static double[] testEdgeCasesDouble() {
+		public static double[] testSpecialCasesDouble() {
 			return new double[] {
 					Double.NaN,
 					Double.MAX_VALUE,
 					Double.MAX_VALUE,
 					Double.POSITIVE_INFINITY,
 					Double.NEGATIVE_INFINITY,
+			};
+		}
+
+		public static float[] testSpecialCasesFloat() {
+			return new float[] {
+					Float.NaN,
+					Float.MAX_VALUE,
+					Float.MAX_VALUE,
+					Float.POSITIVE_INFINITY,
+					Float.NEGATIVE_INFINITY,
 			};
 		}
 	}

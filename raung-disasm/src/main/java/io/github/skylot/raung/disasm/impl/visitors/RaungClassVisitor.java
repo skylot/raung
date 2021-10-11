@@ -36,7 +36,7 @@ public class RaungClassVisitor extends ClassVisitor {
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
 		writer.add(Directive.VERSION.token()).space().add(version);
-		writer.startLine(Directive.CLASS).add(RaungAccessFlags.format(access, CLASS)).space().add(name);
+		writer.startLine(Directive.CLASS).add(RaungAccessFlags.format(access, CLASS)).add(name);
 		writer.startLine(Directive.SUPER).add(superName);
 		for (String iface : interfaces) {
 			writer.startLine(Directive.IMPLEMENTS).add(iface);

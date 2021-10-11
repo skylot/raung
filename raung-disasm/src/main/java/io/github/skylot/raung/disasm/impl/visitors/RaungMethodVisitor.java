@@ -22,6 +22,7 @@ import io.github.skylot.raung.common.asm.StackType;
 import io.github.skylot.raung.disasm.impl.utils.RaungDisasmException;
 import io.github.skylot.raung.disasm.impl.utils.RaungTypes;
 import io.github.skylot.raung.disasm.impl.utils.RaungWriter;
+import io.github.skylot.raung.disasm.impl.utils.TypeRefUtils;
 import io.github.skylot.raung.disasm.impl.visitors.data.LabelData;
 import io.github.skylot.raung.disasm.impl.visitors.data.LocalVar;
 import io.github.skylot.raung.disasm.impl.visitors.data.TryCatchBlock;
@@ -84,6 +85,7 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitAttribute(Attribute attribute) {
+		// TODO
 		writer.startLine("# attribute " + attribute);
 	}
 
@@ -269,6 +271,8 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public AnnotationVisitor visitTryCatchAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
+		// TODO
+		writer.startLine("# try-catch annotation " + TypeRefUtils.formatPath(typeRef, typePath) + " " + descriptor + " " + visible);
 		return null;
 	}
 

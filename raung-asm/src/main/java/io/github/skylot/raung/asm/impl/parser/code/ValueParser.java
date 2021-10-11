@@ -50,9 +50,11 @@ public class ValueParser {
 		switch (type) {
 			case "Double":
 				return parseSpecialDouble(value);
+			case "Float":
+				return parseSpecialFloat(value);
 
 			default:
-				throw new RaungAsmException("Unknown value type: " + type + "." + value);
+				throw new RaungAsmException("Unknown special value: " + type + "." + value);
 		}
 	}
 
@@ -71,6 +73,24 @@ public class ValueParser {
 
 			default:
 				throw new RaungAsmException("Unknown Double special value: " + value);
+		}
+	}
+
+	private static Object parseSpecialFloat(String value) {
+		switch (value) {
+			case "NaN":
+				return Float.NaN;
+			case "MAX_VALUE":
+				return Float.MAX_VALUE;
+			case "MIN_VALUE":
+				return Float.MIN_VALUE;
+			case "POSITIVE_INFINITY":
+				return Float.POSITIVE_INFINITY;
+			case "NEGATIVE_INFINITY":
+				return Float.NEGATIVE_INFINITY;
+
+			default:
+				throw new RaungAsmException("Unknown Float special value: " + value);
 		}
 	}
 }

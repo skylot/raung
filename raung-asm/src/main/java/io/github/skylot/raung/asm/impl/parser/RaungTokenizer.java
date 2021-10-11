@@ -253,6 +253,9 @@ public class RaungTokenizer implements Closeable {
 	}
 
 	private String readFullLine() {
+		if (savedState == State.AT_LINE_END || savedState == State.AT_FILE_END) {
+			return lineBuffer.toString().replaceAll("[\n\r]", "");
+		}
 		try {
 			while (true) {
 				int cp = this.reader.read();

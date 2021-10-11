@@ -31,12 +31,21 @@ public class IntegrationTest {
 	protected String runChecksFor(Class<?> cls) {
 		try {
 			Path classFile = locateClassFile(cls);
+			return runChecksFor(classFile);
+		} catch (Exception e) {
+			fail("Check failed", e);
+			return null;
+		}
+	}
+
+	protected String runChecksFor(Path classFile) {
+		try {
 			String disasm = disasmFromFile(classFile);
 			printCode(disasm);
 			byte[] bytes = assembleClass(disasm);
 
-			compareResults("Raung diff", disasm, disasmFromBytes(bytes));
 			compareResults("ASM diff", disasmWithASM(classFile), disasmWithASM(bytes));
+			compareResults("Raung diff", disasm, disasmFromBytes(bytes));
 			checkClassWithAsm(bytes);
 			return disasm;
 		} catch (Exception e) {

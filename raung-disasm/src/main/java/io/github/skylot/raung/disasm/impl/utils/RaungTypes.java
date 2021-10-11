@@ -25,7 +25,7 @@ public class RaungTypes {
 				return value.toString();
 			}
 			if (value instanceof Float) {
-				return String.valueOf(value) + 'f';
+				return formatFloat((Float) value);
 			}
 			if (value instanceof Long) {
 				return String.valueOf(value) + 'L';
@@ -97,6 +97,25 @@ public class RaungTypes {
 			return "Double.MAX_VALUE";
 		}
 		return Double.toString(value);
+	}
+
+	private static String formatFloat(float value) {
+		if (Float.isNaN(value)) {
+			return "Float.NaN";
+		}
+		if (value == Float.POSITIVE_INFINITY) {
+			return "Float.POSITIVE_INFINITY";
+		}
+		if (value == Float.NEGATIVE_INFINITY) {
+			return "Float.NEGATIVE_INFINITY";
+		}
+		if (value == Float.MIN_VALUE) {
+			return "Float.MIN_VALUE";
+		}
+		if (value == Float.MAX_VALUE) {
+			return "Float.MAX_VALUE";
+		}
+		return Float.toString(value) + 'f';
 	}
 
 	public static String formatHandle(Handle handle) {
