@@ -68,11 +68,19 @@ public class RaungDisasmExecutor {
 	}
 
 	private static void runForZip(RaungDisasmBuilder args, Path zipPath) {
+		Path resDir = args.getOutput().resolve("resources");
 		ZipUtils.visitZipEntries(zipPath.toFile(), (zip, entry) -> {
 			String entryName = entry.getName();
 			if (entryName.endsWith(".class")) {
 				try (InputStream in = ZipUtils.getInputStreamForEntry(zip, entry)) {
 					saveResult(args, runForInputStream(args, in));
+				} catch (Exception e) {
+					LOG.error("Error process zip entry: {}", entry.getName(), e);
+				}
+			} else if (!entry.isDirectory()) {
+				// save resources
+				try (InputStream in = ZipUtils.getInputStreamForEntry(zip, entry)) {
+					FileUtils.saveInputStream(resDir, entryName, in);
 				} catch (Exception e) {
 					LOG.error("Error process zip entry: {}", entry.getName(), e);
 				}

@@ -1,13 +1,16 @@
 package io.github.skylot.raung.common.utils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,7 +30,18 @@ public class FileUtils {
 				files.add(path);
 			}
 		}
+		Collections.sort(files);
 		return files;
+	}
+
+	public static List<Path> expandDir(Path path) {
+		if (Files.isDirectory(path)) {
+			List<Path> files = new ArrayList<>();
+			expandDir(path, files);
+			Collections.sort(files);
+			return files;
+		}
+		return Collections.singletonList(path);
 	}
 
 	private static void expandDir(Path dir, List<Path> files) {
@@ -60,7 +74,7 @@ public class FileUtils {
 				try {
 					Files.createDirectories(dir);
 				} catch (IOException e) {
-					throw new RuntimeException("Can't create directory " + dir);
+					throw new RuntimeException("Can't create directory " + dir, e);
 				}
 			}
 		}
@@ -71,6 +85,16 @@ public class FileUtils {
 		makeDirsForFile(file);
 		try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
 			writer.write(code);
+		} catch (Exception e) {
+			throw new RuntimeException("File save failed: " + file.toAbsolutePath(), e);
+		}
+	}
+
+	public static void saveInputStream(Path output, String fileName, InputStream inputStream) {
+		Path file = output.resolve(fileName);
+		makeDirsForFile(file);
+		try {
+			Files.copy(inputStream, file, StandardCopyOption.REPLACE_EXISTING);
 		} catch (Exception e) {
 			throw new RuntimeException("File save failed: " + file.toAbsolutePath(), e);
 		}

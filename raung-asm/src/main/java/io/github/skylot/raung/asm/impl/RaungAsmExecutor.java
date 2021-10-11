@@ -86,18 +86,32 @@ public class RaungAsmExecutor {
 		Path jarPath = args.getOutput();
 		LOG.info("Saving to jar: {}", jarPath);
 		try (JarOutputStream jar = new JarOutputStream(Files.newOutputStream(args.getOutput()))) {
-			for (Path file : FileUtils.expandDirs(args.getInputs())) {
-				String ext = FileUtils.getExt(file);
-				if (Objects.equals(ext, "raung")) {
-					ClassData cls = runForSingleClass(args, file);
-					JarEntry entry = new JarEntry(cls.getName() + ".class");
-					jar.putNextEntry(entry);
-					jar.write(cls.getBytes());
-					jar.closeEntry();
-				}
+			for (Path input : args.getInputs()) {
+				processInputForJar(input, jar, args);
 			}
 		} catch (IOException e) {
 			throw new RaungAsmException("Process failed", e);
+		}
+	}
+
+	private static void processInputForJar(Path input, JarOutputStream jar, RaungAsmBuilder args) throws IOException {
+		Path resources = input.resolve("resources");
+		boolean checkResources = Files.isDirectory(resources);
+		for (Path file : FileUtils.expandDir(input)) {
+			String ext = FileUtils.getExt(file);
+			if (Objects.equals(ext, "raung")) {
+				ClassData cls = runForSingleClass(args, file);
+				JarEntry entry = new JarEntry(cls.getName() + ".class");
+				jar.putNextEntry(entry);
+				jar.write(cls.getBytes());
+				jar.closeEntry();
+			} else if (checkResources && file.startsWith(resources)) {
+				Path resFile = resources.relativize(file);
+				JarEntry entry = new JarEntry(resFile.toString());
+				jar.putNextEntry(entry);
+				jar.write(Files.readAllBytes(file));
+				jar.closeEntry();
+			}
 		}
 	}
 }
