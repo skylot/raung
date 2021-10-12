@@ -9,7 +9,7 @@ based on [ASM](https://asm.ow2.io/) library.
 
 
 ### Syntax example:
-```smali
+```
 .version 52
 .class public HelloWorld
 .source "HelloWorld.java"

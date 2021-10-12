@@ -1,0 +1,25 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+
+      - uses: burrunan/gradle-cache-action@v1
+        name: Build with Gradle
+        env:
+          TERM: dumb
+        with:
+          arguments: clean build --warning-mode=all
