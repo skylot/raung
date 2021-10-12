@@ -3,6 +3,7 @@ plugins {
 
 	`java-library`
 	`maven-publish`
+	signing
 }
 
 dependencies {
@@ -30,13 +31,13 @@ publishing {
 				}
 			}
 			pom {
-				name.set("Raung")
+				name.set(project.name)
 				description.set("Assembler/disassembler for java bytecode")
 				url.set("https://github.com/skylot/raung")
 				licenses {
 					license {
 						name.set("MIT License")
-						url.set("https://github.com/skylot/raung/blob/main/LICENSE")
+						url.set("http://www.opensource.org/licenses/mit-license.php")
 					}
 				}
 				developers {
@@ -44,15 +45,33 @@ publishing {
 						id.set("skylot")
 						name.set("Skylot")
 						email.set("skylot@gmail.com")
+						url.set("https://github.com/skylot")
 					}
 				}
 				scm {
 					connection.set("scm:git:git://github.com/skylot/raung.git")
+					developerConnection.set("scm:git:ssh://github.com:skylot/raung.git")
 					url.set("https://github.com/skylot/raung")
 				}
 			}
 		}
 	}
+	repositories {
+		maven {
+			// change URLs to point to your repos, e.g. http://my.org/repo
+			val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+			val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+			url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+			credentials {
+				username = project.properties["ossrhUser"].toString()
+				password = project.properties["ossrhPassword"].toString()
+			}
+		}
+	}
+}
+
+signing {
+	sign(publishing.publications["mavenJava"])
 }
 
 tasks.javadoc {
