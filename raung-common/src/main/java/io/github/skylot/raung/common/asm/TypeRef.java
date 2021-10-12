@@ -25,8 +25,7 @@ public enum TypeRef {
 	FIELD(TypeReference.FIELD, "field", NO_ARGS),
 	METHOD_RETURN(TypeReference.METHOD_RETURN, "method_return", NO_ARGS),
 	NEW(TypeReference.NEW, "new", NO_ARGS),
-	LOCAL_VARIABLE(TypeReference.LOCAL_VARIABLE, "local_variable", NO_ARGS),
-	;
+	LOCAL_VARIABLE(TypeReference.LOCAL_VARIABLE, "local_variable", NO_ARGS);
 
 	private final int value;
 	private final String name;

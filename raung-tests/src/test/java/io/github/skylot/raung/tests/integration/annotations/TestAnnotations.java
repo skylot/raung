@@ -34,6 +34,7 @@ public class TestAnnotations extends IntegrationTest {
 		public static class C<K, @B(i = 2) V> {
 		}
 
+		@SuppressWarnings("ModifierOrder")
 		public @B void test1(@B(i = 0) int i, @Nullable String s) {
 		}
 

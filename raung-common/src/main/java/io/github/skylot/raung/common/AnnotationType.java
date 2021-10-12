@@ -7,8 +7,7 @@ public enum AnnotationType {
 	DEFAULT("default"),
 	SUB("sub_annotation"),
 	INSN("insn_annotation"),
-	ARRAY("array"),
-	;
+	ARRAY("array");
 
 	private final String name;
 

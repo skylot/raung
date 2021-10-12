@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import io.github.skylot.raung.tests.api.IntegrationTest;
 
+@SuppressWarnings("AvoidEscapedUnicodeCharacters")
 public class TestStringEscape extends IntegrationTest {
 	public static class TestCls {
 		static final String FORMAT = "\n\r\t\b\f\\\"' ";

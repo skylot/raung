@@ -44,3 +44,16 @@ spotless {
 		endWithNewline()
 	}
 }
+
+var libProjects = listOf(":raung-common", ":raung-asm", ":raung-disasm")
+
+tasks.register("publishLocal") {
+	libProjects.forEach {
+		dependsOn(tasks.getByPath("$it:publishToMavenLocal"))
+	}
+}
+tasks.register("publish") {
+	libProjects.forEach {
+		dependsOn(tasks.getByPath("$it:publish"))
+	}
+}
