@@ -55,15 +55,19 @@ public class InvokeDynamicParser {
 	private static void parseArg(RaungParser parser, List<Object> args) {
 		int index = parser.readInt();
 		String token = parser.readToken();
-		switch (token) {
-			case ".handle":
-				args.add(index, parseHandle(parser));
-				break;
-			case ".methodtype":
-				args.add(index, parseMethodType(parser));
-				break;
-			default:
-				throw new RaungAsmException("Unknown directive for 'invokedynamic' scope", token);
+		if (token.startsWith(".")) {
+			switch (token) {
+				case ".handle":
+					args.add(index, parseHandle(parser));
+					break;
+				case ".methodtype":
+					args.add(index, parseMethodType(parser));
+					break;
+				default:
+					throw new RaungAsmException("Unknown directive for 'invokedynamic' scope", token);
+			}
+		} else {
+			args.add(ValueParser.process(token));
 		}
 	}
 
