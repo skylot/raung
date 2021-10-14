@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-	implementation(project(":raung-common"))
+	api(project(":raung-common"))
 }
