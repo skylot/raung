@@ -14,6 +14,7 @@ public class RaungDisasmBuilder implements IRaungDisasm {
 	private Path output;
 
 	private boolean ignoreDebugInfo = false;
+	private boolean saveCatchNumber = false;
 
 	@Override
 	public IRaungDisasm inputs(List<Path> inputs) {
@@ -40,6 +41,16 @@ public class RaungDisasmBuilder implements IRaungDisasm {
 	public IRaungDisasm ignoreDebugInfo() {
 		this.ignoreDebugInfo = true;
 		return this;
+	}
+
+	@Override
+	public IRaungDisasm saveCatchNumber(boolean save) {
+		this.saveCatchNumber = save;
+		return this;
+	}
+
+	public boolean isSaveCatchNumber() {
+		return saveCatchNumber;
 	}
 
 	public List<Path> getInputs() {

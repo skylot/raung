@@ -28,6 +28,7 @@ public class MethodData extends CommonData {
 
 	private Map<Integer, RaungLocalVar> localVars;
 	private final List<RaungLabel> labels = new ArrayList<>();
+	private final List<TryCatchBlock> catchBlocks = new ArrayList<>();
 	private final Map<String, RaungLabel> labelsMap = new HashMap<>();
 	private InsnAnnotationNode insnAnnotationNode;
 
@@ -142,6 +143,14 @@ public class MethodData extends CommonData {
 
 	public InsnAnnotationNode getInsnAnnotationNode() {
 		return insnAnnotationNode;
+	}
+
+	public void addTryCatchBlock(TryCatchBlock tryCatchBlock) {
+		this.catchBlocks.add(tryCatchBlock);
+	}
+
+	public List<TryCatchBlock> getCatchBlocks() {
+		return catchBlocks;
 	}
 
 	@Override

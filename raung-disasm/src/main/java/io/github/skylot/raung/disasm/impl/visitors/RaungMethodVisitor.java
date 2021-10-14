@@ -37,6 +37,8 @@ public class RaungMethodVisitor extends MethodVisitor {
 	private final Map<Label, LabelData> labels = new IdentityHashMap<>();
 	private final Map<Integer, RaungWriter> insnAttachments = new HashMap<>();
 
+	private int catchCount;
+
 	public RaungMethodVisitor(RaungClassVisitor classVisitor) {
 		super(classVisitor.getApi());
 		this.classVisitor = classVisitor;
@@ -265,7 +267,7 @@ public class RaungMethodVisitor extends MethodVisitor {
 		LabelData startLabel = getLabelData(start).addUse();
 		LabelData endLabel = getLabelData(end).addUse();
 		LabelData handlerLabel = getLabelData(handler).addUse();
-		TryCatchBlock tryCatchBlock = new TryCatchBlock(startLabel, endLabel, handlerLabel, type);
+		TryCatchBlock tryCatchBlock = new TryCatchBlock(catchCount++, startLabel, endLabel, handlerLabel, type);
 		endLabel.addCatch(tryCatchBlock);
 	}
 
@@ -358,8 +360,11 @@ public class RaungMethodVisitor extends MethodVisitor {
 		if (!labelData.getCatches().isEmpty()) {
 			for (TryCatchBlock catchBlock : labelData.getCatches()) {
 				String type = catchBlock.getType();
-				writer.startLine(Directive.CATCH)
-						.add(type == null ? "all" : type)
+				writer.startLine(Directive.CATCH);
+				if (classVisitor.getArgs().isSaveCatchNumber()) {
+					writer.add('@').add(catchBlock.getId()).space();
+				}
+				writer.add(type == null ? "all" : type)
 						.space().add(catchBlock.getStart().getName())
 						.space().add("..")
 						.space().add(catchBlock.getEnd().getName())

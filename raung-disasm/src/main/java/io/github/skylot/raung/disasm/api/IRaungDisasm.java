@@ -24,6 +24,17 @@ public interface IRaungDisasm {
 	IRaungDisasm output(Path out);
 
 	/**
+	 * Don't add debug information (var names and line numbers)
+	 */
+	IRaungDisasm ignoreDebugInfo();
+
+	/**
+	 * Add optional catch number (allow preserving try-catches order).
+	 * Default to false;
+	 */
+	IRaungDisasm saveCatchNumber(boolean save);
+
+	/**
 	 * Preform disassemble according to provided options.
 	 */
 	void execute();
@@ -39,9 +50,4 @@ public interface IRaungDisasm {
 	 * Any set inputs or output will be ignored.
 	 */
 	String executeForInputStream(InputStream input);
-
-	/**
-	 * Don't add debug information (var names and line numbers)
-	 */
-	IRaungDisasm ignoreDebugInfo();
 }

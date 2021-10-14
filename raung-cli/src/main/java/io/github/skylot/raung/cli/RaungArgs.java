@@ -39,6 +39,7 @@ public class RaungArgs implements Callable<Integer> {
 			mixinStandardHelpOptions = true,
 			sortOptions = false
 	)
+	@SuppressWarnings({ "FieldCanBeLocal", "FieldMayBeFinal", "unused" })
 	public static class AsmArgs implements Runnable {
 		@Parameters(paramLabel = "INPUTS", arity = "1..*", description = "input directories or *.raung files")
 		private List<Path> inputs;
@@ -62,7 +63,7 @@ public class RaungArgs implements Callable<Integer> {
 			mixinStandardHelpOptions = true,
 			sortOptions = false
 	)
-	@SuppressWarnings("FieldCanBeLocal")
+	@SuppressWarnings({ "FieldCanBeLocal", "FieldMayBeFinal", "unused" })
 	public static class DisasmArgs implements Runnable {
 		@Parameters(paramLabel = "FILES", arity = "1..*", description = "*.jar or *.class files")
 		private List<Path> files;
@@ -73,10 +74,14 @@ public class RaungArgs implements Callable<Integer> {
 		@Option(names = { "-d", "--no-debug-info" }, description = "Don't add debug info")
 		private boolean debugInfo = true;
 
+		@Option(names = { "--save-catch-numbers" }, description = "Save optional catch number to preserve order or rebuild")
+		private boolean catchNumber = false;
+
 		public void run() {
 			IRaungDisasm disasm = RaungDisasm.create()
 					.inputs(files)
-					.output(output);
+					.output(output)
+					.saveCatchNumber(catchNumber);
 			if (!debugInfo) {
 				disasm.ignoreDebugInfo();
 			}

@@ -1,6 +1,7 @@
 package io.github.skylot.raung.asm.impl.parser.directives;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import io.github.skylot.raung.asm.impl.parser.data.ClassData;
 import io.github.skylot.raung.asm.impl.parser.data.MethodData;
 import io.github.skylot.raung.asm.impl.parser.data.RaungLabel;
 import io.github.skylot.raung.asm.impl.parser.data.RaungLocalVar;
+import io.github.skylot.raung.asm.impl.parser.data.TryCatchBlock;
 import io.github.skylot.raung.asm.impl.utils.AsmLibException;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 import io.github.skylot.raung.common.Directive;
@@ -222,6 +224,7 @@ public class MethodDirectives {
 
 	private static void processMethodEnd(MethodData mth) {
 		MethodVisitor mv = mth.getAsmMethodVisitor();
+		visitTryCatchBlocks(mth);
 		visitLocalVars(mth);
 		try {
 			mv.visitMaxs(mth.getMaxStack(), mth.getMaxLocals());
@@ -229,6 +232,18 @@ public class MethodDirectives {
 		} catch (Exception e) {
 			throw new AsmLibException("Failed to build method: " + mth.getName() + mth.getDescriptor()
 					+ ". Error: " + e.getMessage(), e);
+		}
+	}
+
+	private static void visitTryCatchBlocks(MethodData mth) {
+		List<TryCatchBlock> tryCatchBlocks = mth.getCatchBlocks();
+		if (tryCatchBlocks.isEmpty()) {
+			return;
+		}
+		Collections.sort(tryCatchBlocks);
+		MethodVisitor visitor = mth.getAsmMethodVisitor();
+		for (TryCatchBlock tcb : tryCatchBlocks) {
+			visitor.visitTryCatchBlock(tcb.getStart(), tcb.getEnd(), tcb.getHandler(), tcb.getType());
 		}
 	}
 
@@ -332,13 +347,22 @@ public class MethodDirectives {
 	}
 
 	private static void processCatch(RaungParser parser, MethodData methodData) {
-		String typeStr = parser.readToken();
+		int id;
+		String typeStr;
+		String token = parser.readToken();
+		if (token.startsWith("@")) {
+			id = Integer.parseInt(token.substring(1));
+			typeStr = parser.readType();
+		} else {
+			id = Integer.MAX_VALUE;
+			typeStr = token;
+		}
 		RaungLabel startLabel = RaungLabel.ref(methodData, parser.readToken());
 		parser.consumeToken("..");
 		RaungLabel endLabel = RaungLabel.ref(methodData, parser.readToken());
 		parser.consumeToken("goto");
 		RaungLabel handlerLabel = RaungLabel.ref(methodData, parser.readToken());
 		String type = typeStr.equals("all") ? null : typeStr;
-		methodData.getAsmMethodVisitor().visitTryCatchBlock(startLabel, endLabel, handlerLabel, type);
+		methodData.addTryCatchBlock(new TryCatchBlock(id, startLabel, endLabel, handlerLabel, type));
 	}
 }
