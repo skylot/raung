@@ -82,6 +82,10 @@ public class FileUtils {
 
 	public static void saveFile(Path output, String fileName, String code) {
 		Path file = output.resolve(fileName);
+		saveFile(file, code);
+	}
+
+	public static void saveFile(Path file, String code) {
 		makeDirsForFile(file);
 		try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
 			writer.write(code);
@@ -101,7 +105,10 @@ public class FileUtils {
 	}
 
 	@Nullable
-	public static String getExt(Path path) {
+	public static String getExt(@Nullable Path path) {
+		if (path == null) {
+			return null;
+		}
 		String name = path.getFileName().toString();
 		int extIdx = name.lastIndexOf('.');
 		if (extIdx == -1 || extIdx == name.length() - 1) {

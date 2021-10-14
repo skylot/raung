@@ -22,14 +22,6 @@ public class ValidateDisasmArgs {
 				throw new RaungDisasmException("Input not found: " + input.toAbsolutePath());
 			}
 		}
-		Path output = args.getOutput();
-		if (output == null) {
-			args.output(getOutDirFromInputs(args.getInputs()));
-		} else {
-			if (Files.isRegularFile(output)) {
-				throw new RaungDisasmException("Output already exists as a regular file. Expect directory");
-			}
-		}
 		processOptions(args);
 	}
 
@@ -37,7 +29,7 @@ public class ValidateDisasmArgs {
 		LOG.debug("Effective args: {}", args);
 	}
 
-	private static Path getOutDirFromInputs(List<Path> inputs) {
+	public static Path getOutDirFromInputs(List<Path> inputs) {
 		Path input = inputs.get(0);
 		Path inputParent = input.getParent();
 		Path parentDir = inputParent == null ? Paths.get(".") : inputParent;

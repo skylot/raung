@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Objects;
 
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
@@ -24,10 +25,7 @@ public class RaungDisasmExecutor {
 
 	public static void process(RaungDisasmBuilder args) {
 		ValidateDisasmArgs.process(args);
-		List<Path> inputs = args.getInputs();
-		for (Path input : FileUtils.expandDirs(inputs)) {
-			runForFile(args, input);
-		}
+		processFiles(args);
 	}
 
 	public static String processSingleClass(RaungDisasmBuilder args, Path clsFile) {
@@ -54,6 +52,40 @@ public class RaungDisasmExecutor {
 		RaungClassVisitor visitor = new RaungClassVisitor(args);
 		reader.accept(visitor, 0); // TODO: add option for skip frames (if '.auto frames' will be used)
 		return visitor;
+	}
+
+	private static void processFiles(RaungDisasmBuilder args) {
+		Path output = args.getOutput();
+		boolean isOutputRaungFile = Objects.equals(FileUtils.getExt(output), "raung");
+		List<Path> inputFiles = FileUtils.expandDirs(args.getInputs());
+		if (inputFiles.size() == 1 && inputFiles.get(0).getFileName().toString().endsWith(".class")) {
+			// single class file as input
+			Path inputFile = inputFiles.get(0);
+			RaungClassVisitor rcv = runForSingleClass(args, inputFile);
+			if (output == null) {
+				// save single class disasm to '.raung' file with same base name
+				String fileName = inputFile.getFileName().toString();
+				String baseFileName = fileName.substring(0, fileName.length() - 6) + ".raung";
+				Path raungFile = inputFile.toAbsolutePath().getParent().resolve(baseFileName);
+				LOG.info("Saving to {}", raungFile);
+				FileUtils.saveFile(raungFile, rcv.getResult());
+				return;
+			}
+			if (isOutputRaungFile) {
+				FileUtils.saveFile(output, rcv.getResult());
+				return;
+			}
+			// output is directory
+			saveResult(args, rcv);
+			return;
+		}
+		// save multiple results to directory
+		if (isOutputRaungFile || Files.isRegularFile(output)) {
+			throw new RaungDisasmException("Expect output to be directory, got file: " + output);
+		}
+		for (Path input : inputFiles) {
+			runForFile(args, input);
+		}
 	}
 
 	private static void runForFile(RaungDisasmBuilder args, Path inputFile) {
