@@ -1,5 +1,9 @@
 # Raung
 
+[![Build](https://github.com/skylot/raung/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/skylot/raung/actions/workflows/build.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.skylot/raung-asm?style=flat)](https://search.maven.org/search?q=raung)
+[![GitHub](https://img.shields.io/github/license/skylot/raung)](https://github.com/skylot/raung/blob/main/LICENSE)
+
 **raung** - yet another assembler/disassembler for java bytecode.
 
 Similar to [Krakatau](https://github.com/Storyyeller/Krakatau) and [Smali](https://github.com/JesusFreke/smali),
