@@ -2,8 +2,6 @@ package io.github.skylot.raung.disasm.impl.utils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,18 +24,9 @@ public class ValidateDisasmArgs {
 	}
 
 	public static void processOptions(RaungDisasmBuilder args) {
-		LOG.debug("Effective args: {}", args);
-	}
-
-	public static Path getOutDirFromInputs(List<Path> inputs) {
-		Path input = inputs.get(0);
-		Path inputParent = input.getParent();
-		Path parentDir = inputParent == null ? Paths.get(".") : inputParent;
-		String fileName = input.getFileName().toString();
-		int extPos = fileName.lastIndexOf('.');
-		if (extPos == -1) {
-			return parentDir.resolve(fileName + "-raung");
+		if (args.isAutoFrames()) {
+			args.autoMax(true);
 		}
-		return parentDir.resolve(fileName.substring(0, extPos));
+		LOG.debug("Effective args: {}", args);
 	}
 }

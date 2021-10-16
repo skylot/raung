@@ -45,6 +45,12 @@ public class RaungClassVisitor extends ClassVisitor {
 			writer.startLine(Directive.SIGNATURE).add(signature);
 		}
 		this.clsFullName = name;
+
+		if (args.isAutoFrames()) {
+			writer.startLine(".auto frames");
+		} else if (args.isAutoMax()) {
+			writer.startLine(".auto maxs");
+		}
 	}
 
 	@Override

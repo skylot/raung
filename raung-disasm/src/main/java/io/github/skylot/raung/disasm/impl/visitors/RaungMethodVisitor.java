@@ -97,6 +97,9 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitFrame(int type, int numLocal, Object[] local, int numStack, Object[] stack) {
+		if (classVisitor.getArgs().isAutoFrames()) {
+			return;
+		}
 		RaungWriter rw = tmpWriter();
 		rw.add(Directive.STACK);
 		switch (type) {
@@ -229,7 +232,8 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
-		RaungWriter rw = tmpWriter().add("tableswitch");
+		String switchType = classVisitor.getArgs().isAutoSwitch() ? "switch" : "tableswitch";
+		RaungWriter rw = tmpWriter().add(switchType);
 		rw.setIndent(writer.getIndent() + 1);
 		int l = 0;
 		for (int i = min; i <= max; i++) {
@@ -238,13 +242,14 @@ public class RaungMethodVisitor extends MethodVisitor {
 		}
 		rw.startLine("default ").add(getLabelData(dflt).addUse().getName());
 		rw.setIndent(writer.getIndent());
-		rw.startLine(".end tableswitch");
+		rw.startLine(".end ").add(switchType);
 		insns.add(rw.getCode());
 	}
 
 	@Override
 	public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
-		RaungWriter rw = tmpWriter().add("lookupswitch");
+		String switchType = classVisitor.getArgs().isAutoSwitch() ? "switch" : "lookupswitch";
+		RaungWriter rw = tmpWriter().add(switchType);
 		rw.setIndent(writer.getIndent() + 1);
 		int len = keys.length;
 		for (int i = 0; i < len; i++) {
@@ -253,7 +258,7 @@ public class RaungMethodVisitor extends MethodVisitor {
 		}
 		rw.startLine("default ").add(getLabelData(dflt).addUse().getName());
 		rw.setIndent(writer.getIndent());
-		rw.startLine(".end lookupswitch");
+		rw.startLine(".end ").add(switchType);
 		insns.add(rw.getCode());
 	}
 
@@ -309,6 +314,9 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitMaxs(int maxStack, int maxLocals) {
+		if (classVisitor.getArgs().isAutoMax()) {
+			return;
+		}
 		writer.startLine(".max stack").space().add(maxStack);
 		writer.startLine(".max locals").space().add(maxLocals);
 		writer.newLine();

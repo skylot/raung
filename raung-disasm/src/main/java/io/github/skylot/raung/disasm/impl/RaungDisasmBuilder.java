@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.skylot.raung.disasm.api.IRaungDisasm;
+import io.github.skylot.raung.disasm.api.RaungDisasmPreset;
 import io.github.skylot.raung.disasm.impl.utils.RaungDisasmException;
 
 public class RaungDisasmBuilder implements IRaungDisasm {
@@ -15,6 +16,10 @@ public class RaungDisasmBuilder implements IRaungDisasm {
 
 	private boolean ignoreDebugInfo = false;
 	private boolean saveCatchNumber = false;
+
+	private boolean autoMax = false;
+	private boolean autoFrames = false;
+	private boolean autoSwitch = false;
 
 	@Override
 	public IRaungDisasm inputs(List<Path> inputs) {
@@ -38,6 +43,12 @@ public class RaungDisasmBuilder implements IRaungDisasm {
 	}
 
 	@Override
+	public IRaungDisasm preset(RaungDisasmPreset preset) {
+		preset.accept(this);
+		return this;
+	}
+
+	@Override
 	public IRaungDisasm ignoreDebugInfo() {
 		this.ignoreDebugInfo = true;
 		return this;
@@ -46,6 +57,24 @@ public class RaungDisasmBuilder implements IRaungDisasm {
 	@Override
 	public IRaungDisasm saveCatchNumber(boolean save) {
 		this.saveCatchNumber = save;
+		return this;
+	}
+
+	@Override
+	public IRaungDisasm autoMax(boolean auto) {
+		this.autoMax = auto;
+		return this;
+	}
+
+	@Override
+	public IRaungDisasm autoFrames(boolean auto) {
+		this.autoFrames = auto;
+		return this;
+	}
+
+	@Override
+	public IRaungDisasm autoSwitch(boolean auto) {
+		this.autoSwitch = auto;
 		return this;
 	}
 
@@ -63,6 +92,18 @@ public class RaungDisasmBuilder implements IRaungDisasm {
 
 	public boolean isIgnoreDebugInfo() {
 		return ignoreDebugInfo;
+	}
+
+	public boolean isAutoMax() {
+		return autoMax;
+	}
+
+	public boolean isAutoFrames() {
+		return autoFrames;
+	}
+
+	public boolean isAutoSwitch() {
+		return autoSwitch;
 	}
 
 	@Override
@@ -86,10 +127,14 @@ public class RaungDisasmBuilder implements IRaungDisasm {
 
 	@Override
 	public String toString() {
-		return "RaungDisasmArgs{"
-				+ "input=" + inputs
+		return "RaungDisasmBuilder{"
+				+ "inputs=" + inputs
 				+ ", output=" + output
 				+ ", ignoreDebugInfo=" + ignoreDebugInfo
+				+ ", saveCatchNumber=" + saveCatchNumber
+				+ ", autoMax=" + autoMax
+				+ ", autoFrames=" + autoFrames
+				+ ", autoSwitch=" + autoSwitch
 				+ '}';
 	}
 }

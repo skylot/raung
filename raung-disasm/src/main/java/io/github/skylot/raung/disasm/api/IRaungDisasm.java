@@ -24,6 +24,12 @@ public interface IRaungDisasm {
 	IRaungDisasm output(Path out);
 
 	/**
+	 * Set predefined set of options, see {@link RaungDisasmPreset}.
+	 * Caution: this method will overwrite all previously set options (except 'inputs' and 'output')
+	 */
+	IRaungDisasm preset(RaungDisasmPreset preset);
+
+	/**
 	 * Don't add debug information (var names and line numbers)
 	 */
 	IRaungDisasm ignoreDebugInfo();
@@ -33,6 +39,21 @@ public interface IRaungDisasm {
 	 * Default to false;
 	 */
 	IRaungDisasm saveCatchNumber(boolean save);
+
+	/**
+	 * Remove '.max' add '.auto maxs'
+	 */
+	IRaungDisasm autoMax(boolean auto);
+
+	/**
+	 * Remove '.max' and '.stack' add '.auto frames'
+	 */
+	IRaungDisasm autoFrames(boolean auto);
+
+	/**
+	 * Use switch with type autodetect: 'table' or 'lookup'
+	 */
+	IRaungDisasm autoSwitch(boolean auto);
 
 	/**
 	 * Preform disassemble according to provided options.
