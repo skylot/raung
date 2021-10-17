@@ -39,7 +39,9 @@ public class RaungClassVisitor extends ClassVisitor {
 		writer.add(Directive.VERSION.token()).space().add(version)
 				.add("  # ").add(JavaVersion.getNameStr(version));
 		writer.startLine(Directive.CLASS).add(RaungAccessFlags.format(access, CLASS)).add(name);
-		writer.startLine(Directive.SUPER).add(superName);
+		if (!superName.equals("java/lang/Object")) {
+			writer.startLine(Directive.SUPER).add(superName);
+		}
 		for (String iface : interfaces) {
 			writer.startLine(Directive.IMPLEMENTS).add(iface);
 		}
@@ -68,12 +70,17 @@ public class RaungClassVisitor extends ClassVisitor {
 
 	@Override
 	public void visitNestHost(String nestHost) {
-		writer.startLine("# TODO: nest host: " + nestHost);
+		writer.newLine().startLine(Directive.NEST).add("host").space().add(nestHost);
+	}
+
+	@Override
+	public void visitNestMember(String nestMember) {
+		writer.newLine().startLine(Directive.NEST).add("member").space().add(nestMember);
 	}
 
 	@Override
 	public void visitOuterClass(String owner, String name, String descriptor) {
-		writer.startLine()
+		writer.newLine()
 				.startLine(Directive.OUTERCLASS)
 				.add(owner).space().add(name).space().add(descriptor);
 	}
@@ -103,11 +110,6 @@ public class RaungClassVisitor extends ClassVisitor {
 	@Override
 	public void visitAttribute(Attribute attribute) {
 		writer.startLine("# TODO: class attribute: " + attribute);
-	}
-
-	@Override
-	public void visitNestMember(String nestMember) {
-		writer.startLine("# TODO: class nest member: " + nestMember);
 	}
 
 	@Override
@@ -161,6 +163,7 @@ public class RaungClassVisitor extends ClassVisitor {
 
 	@Override
 	public void visitEnd() {
+		writer.newLine();
 	}
 
 	public int getApi() {

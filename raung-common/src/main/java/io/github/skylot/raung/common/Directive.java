@@ -19,6 +19,7 @@ public enum Directive {
 	SIGNATURE(".signature", SCOPE_ALL),
 	INNERCLASS(".innerclass", SCOPE_CLASS),
 	OUTERCLASS(".outerclass", SCOPE_CLASS),
+	NEST(".nest", SCOPE_CLASS),
 	AUTO(".auto", SCOPE_CLASS),
 	FIELD(".field", SCOPE_CLASS),
 	METHOD(".method", SCOPE_CLASS),

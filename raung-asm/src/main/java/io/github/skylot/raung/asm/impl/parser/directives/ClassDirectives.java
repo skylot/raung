@@ -20,6 +20,7 @@ import static io.github.skylot.raung.common.Directive.FIELD;
 import static io.github.skylot.raung.common.Directive.IMPLEMENTS;
 import static io.github.skylot.raung.common.Directive.INNERCLASS;
 import static io.github.skylot.raung.common.Directive.METHOD;
+import static io.github.skylot.raung.common.Directive.NEST;
 import static io.github.skylot.raung.common.Directive.OUTERCLASS;
 import static io.github.skylot.raung.common.Directive.SIGNATURE;
 import static io.github.skylot.raung.common.Directive.SOURCE;
@@ -40,6 +41,7 @@ public class ClassDirectives {
 		map.put(SIGNATURE, ClassDirectives::processSignature);
 		map.put(INNERCLASS, ClassDirectives::processInnerClass);
 		map.put(OUTERCLASS, ClassDirectives::processOuterClass);
+		map.put(NEST, ClassDirectives::processNest);
 		map.put(SOURCE, ClassDirectives::processSource);
 		map.put(AUTO, ClassDirectives::processAuto);
 		map.put(FIELD, ClassDirectives::processField);
@@ -136,6 +138,20 @@ public class ClassDirectives {
 	private static void checkClassHeader(ClassData classData, Directive directive) {
 		if (classData.isVisited()) {
 			throw new RaungAsmException(directive.token() + " directive should be placed before class body (i.e fields or methods)");
+		}
+	}
+
+	private static void processNest(RaungParser parser, ClassData classData) {
+		String ref = parser.readToken();
+		switch (ref) {
+			case "host":
+				classData.visitCls().visitNestHost(parser.readType());
+				break;
+			case "member":
+				classData.visitCls().visitNestMember(parser.readType());
+				break;
+			default:
+				throw new RaungAsmException("Unknown nest ref type: '" + ref + "', expected 'host' or 'member'");
 		}
 	}
 

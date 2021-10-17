@@ -1,0 +1,4 @@
+.version 61  # Java 17
+.class attributes/TestNestHostAndMember$1
+
+.nest member attributes/TestNestHostAndMember$2

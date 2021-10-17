@@ -1,6 +1,7 @@
 package io.github.skylot.raung.tests.api;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -12,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.assertj.core.util.diff.DiffUtils;
 import org.assertj.core.util.diff.Patch;
@@ -38,7 +40,25 @@ public class IntegrationTest {
 		}
 	}
 
-	protected String runChecksFor(Path classFile) {
+	protected String runChecksForRaung() {
+		return runChecksForRaung(this.getClass().getSimpleName());
+	}
+
+	protected String runChecksForRaung(String fileName) {
+		try {
+			String disasm = loadRaungFile(fileName);
+			byte[] bytes = assembleClass(disasm);
+			String rebuild = disasmFromBytes(bytes);
+			compareResults("Raung diff", disasm, rebuild);
+			checkClassWithAsm(bytes);
+			return rebuild;
+		} catch (Exception e) {
+			fail("Check failed", e);
+			return null;
+		}
+	}
+
+	private String runChecksFor(Path classFile) {
 		try {
 			String disasm = disasmFromFile(classFile);
 			printCode(disasm);
@@ -111,6 +131,24 @@ public class IntegrationTest {
 		} catch (Exception e) {
 			fail("Failed to find class file location: " + cls.getName(), e);
 			return null;
+		}
+	}
+
+	private String loadRaungFile(String fileName) throws IOException {
+		Class<?> thisCls = this.getClass();
+		String pkg = thisCls.getPackage().getName().replace("io.github.skylot.raung.tests.integration.", "");
+		String filePath = "/raung/" + pkg.replace('.', '/') + '/' + fileName + ".raung";
+		try (InputStream in = Objects.requireNonNull(thisCls.getResourceAsStream(filePath));
+				ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+			byte[] buffer = new byte[1024];
+			while (true) {
+				int r = in.read(buffer);
+				if (r == -1) {
+					break;
+				}
+				out.write(buffer, 0, r);
+			}
+			return out.toString(StandardCharsets.UTF_8.name());
 		}
 	}
 
