@@ -6,10 +6,8 @@ import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.Level;
 import picocli.AutoComplete;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -34,7 +32,6 @@ import io.github.skylot.raung.disasm.api.RaungDisasmPreset;
 		mixinStandardHelpOptions = true
 )
 public class RaungArgs implements Callable<Integer> {
-	private static final Logger LOG = LoggerFactory.getLogger(RaungArgs.class);
 
 	@Command(
 			name = "assemble",
@@ -56,7 +53,7 @@ public class RaungArgs implements Callable<Integer> {
 					.inputs(inputs)
 					.output(output)
 					.execute();
-			LOG.info("done");
+			LoggerFactory.getLogger(AsmArgs.class).info("done");
 		}
 	}
 
@@ -116,7 +113,7 @@ public class RaungArgs implements Callable<Integer> {
 			set(catchNumber, disasm::saveCatchNumber);
 
 			disasm.execute();
-			LOG.info("done");
+			LoggerFactory.getLogger(DisasmArgs.class).info("done");
 		}
 	}
 
@@ -140,7 +137,7 @@ public class RaungArgs implements Callable<Integer> {
 
 	private static void applyLogLevel(boolean verbose) {
 		if (verbose) {
-			((ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME)).setLevel(Level.DEBUG);
+			System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
 		}
 	}
 
