@@ -5,5 +5,5 @@ plugins {
 dependencies {
 	api(project(":raung-common"))
 
-	api("org.ow2.asm:asm-util:9.2")
+	api("org.ow2.asm:asm-util:9.3")
 }
