@@ -11,7 +11,7 @@ dependencies {
 }
 
 group = "io.github.skylot"
-version = "0.0.1"
+version = System.getenv("RAUNG_VERSION") ?: "dev"
 
 java {
 	withJavadocJar()
@@ -58,7 +58,6 @@ publishing {
 	}
 	repositories {
 		maven {
-			// change URLs to point to your repos, e.g. http://my.org/repo
 			val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
 			val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 			url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
@@ -71,11 +70,15 @@ publishing {
 }
 
 signing {
+	setRequired(gradle.taskGraph.hasTask("publish"))
 	sign(publishing.publications["mavenJava"])
 }
 
 tasks.javadoc {
+	val stdOptions = options as StandardJavadocDocletOptions
 	if (JavaVersion.current().isJava9Compatible) {
-		(options as StandardJavadocDocletOptions).addBooleanOption("html5", true)
+		stdOptions.addBooleanOption("html5", true)
 	}
+	// disable 'missing' warnings
+	stdOptions.addStringOption("Xdoclint:all,-missing", "-quiet")
 }

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.skylot.raung"
-version = "0.0.1"
+version = System.getenv("RAUNG_VERSION") ?: "dev"
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_1_8

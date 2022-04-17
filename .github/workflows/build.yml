@@ -22,4 +22,4 @@ jobs:
         env:
           TERM: dumb
         with:
-          arguments: clean build --warning-mode=all
+          arguments: clean build dist --warning-mode=all

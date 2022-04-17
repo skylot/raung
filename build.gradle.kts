@@ -27,7 +27,7 @@ spotless {
 		if (JavaVersion.current() < JavaVersion.VERSION_16) {
 			removeUnusedImports()
 		} else {
-			// google-format broken on java 16 (https://github.com/diffplug/spotless/issues/834)
+			// google-format broken on java 16+ (https://github.com/diffplug/spotless/issues/834)
 			println("Warning! Unused imports remove is disabled for Java 16+")
 		}
 		encoding("UTF-8")
@@ -48,12 +48,34 @@ spotless {
 var libProjects = listOf(":raung-common", ":raung-asm", ":raung-disasm")
 
 tasks.register("publishLocal") {
+	group = "raung"
+	description = "Public library packages into Maven local repo"
+
 	libProjects.forEach {
 		dependsOn(tasks.getByPath("$it:publishToMavenLocal"))
 	}
 }
 tasks.register("publish") {
+	group = "raung"
+	description = "Public library packages into Maven Central repo"
+
 	libProjects.forEach {
 		dependsOn(tasks.getByPath("$it:publish"))
 	}
+}
+
+tasks.register("dist", Copy::class) {
+	group = "raung"
+	description = "Build raung-cli distribution package"
+
+	from(tasks.getByPath(":raung-cli:distZip"))
+	into(layout.buildDirectory)
+}
+
+tasks.register("clean", Delete::class) {
+	group = "raung"
+	description = "Remove all build directories"
+
+	delete(layout.buildDirectory)
+	subprojects.forEach { sp -> dependsOn(sp.tasks.named("clean")) }
 }
