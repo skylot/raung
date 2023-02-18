@@ -1,8 +1,14 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
-	id("com.github.ben-manes.versions") version "0.42.0"
-	id("com.diffplug.spotless") version "6.4.2"
+	id("com.github.ben-manes.versions") version "0.45.0"
+	id("com.diffplug.spotless") version "6.13.0"
+}
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	google()
 }
 
 fun isNonStable(version: String): Boolean {
@@ -24,12 +30,7 @@ spotless {
 
 		importOrderFile("config/code-formatter/eclipse.importorder")
 		eclipse().configFile("config/code-formatter/eclipse.xml")
-		if (JavaVersion.current() < JavaVersion.VERSION_16) {
-			removeUnusedImports()
-		} else {
-			// google-format broken on java 16+ (https://github.com/diffplug/spotless/issues/834)
-			println("Warning! Unused imports remove is disabled for Java 16+")
-		}
+		removeUnusedImports()
 		encoding("UTF-8")
 		trimTrailingWhitespace()
 		endWithNewline()
@@ -72,10 +73,11 @@ tasks.register("dist", Copy::class) {
 	into(layout.buildDirectory)
 }
 
-tasks.register("clean", Delete::class) {
+tasks.register("cleanBuild", Delete::class) {
 	group = "raung"
 	description = "Remove all build directories"
 
 	delete(layout.buildDirectory)
-	subprojects.forEach { sp -> dependsOn(sp.tasks.named("clean")) }
 }
+
+tasks.getByName("clean").dependsOn("cleanBuild")

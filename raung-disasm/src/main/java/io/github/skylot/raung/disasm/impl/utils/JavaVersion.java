@@ -24,7 +24,8 @@ public enum JavaVersion {
 	JAVA_15(59, "15"),
 	JAVA_16(60, "16"),
 	JAVA_17(61, "17"),
-	JAVA_18(62, "18");
+	JAVA_18(62, "18"),
+	JAVA_19(63, "19");
 
 	private final int rawVersion;
 	private final String name;

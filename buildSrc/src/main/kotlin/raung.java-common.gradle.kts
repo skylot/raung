@@ -18,11 +18,11 @@ repositories {
 
 dependencies {
 
-	testImplementation("ch.qos.logback:logback-classic:1.2.11")
-	testImplementation("org.assertj:assertj-core:3.22.0")
+	testImplementation("ch.qos.logback:logback-classic:1.3.5")
+	testImplementation("org.assertj:assertj-core:3.24.2")
 
-	testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }
 
 tasks.test {
