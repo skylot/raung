@@ -13,8 +13,8 @@ import org.objectweb.asm.TypePath;
 
 import io.github.skylot.raung.common.Directive;
 import io.github.skylot.raung.common.RaungAccessFlags;
+import io.github.skylot.raung.common.utils.JavaVersion;
 import io.github.skylot.raung.disasm.impl.RaungDisasmBuilder;
-import io.github.skylot.raung.disasm.impl.utils.JavaVersion;
 import io.github.skylot.raung.disasm.impl.utils.RaungTypes;
 import io.github.skylot.raung.disasm.impl.utils.RaungWriter;
 
@@ -36,7 +36,8 @@ public class RaungClassVisitor extends ClassVisitor {
 
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-		writer.add(Directive.VERSION.token()).space().add(version)
+		writer.add(Directive.VERSION.token()).space()
+				.add(JavaVersion.formatVersionNumber(version))
 				.add("  # ").add(JavaVersion.getNameStr(version));
 		writer.startLine(Directive.CLASS).add(RaungAccessFlags.format(access, CLASS)).add(name);
 		if (!superName.equals("java/lang/Object")) {

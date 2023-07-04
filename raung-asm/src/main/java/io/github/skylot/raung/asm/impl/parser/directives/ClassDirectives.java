@@ -12,6 +12,7 @@ import io.github.skylot.raung.asm.impl.parser.data.MethodData;
 import io.github.skylot.raung.asm.impl.utils.RaungAsmException;
 import io.github.skylot.raung.common.Directive;
 import io.github.skylot.raung.common.RaungAccessFlags.Scope;
+import io.github.skylot.raung.common.utils.JavaVersion;
 
 import static io.github.skylot.raung.common.Directive.ANNOTATION;
 import static io.github.skylot.raung.common.Directive.AUTO;
@@ -61,7 +62,22 @@ public class ClassDirectives {
 
 	private static void processVersion(RaungParser parser, ClassData classData) {
 		checkClassHeader(classData, VERSION);
-		classData.setVersion(parser.readInt());
+		int clsVersion;
+		String version = "";
+		try {
+			version = parser.readToken();
+			int point = version.indexOf('.');
+			if (point == -1) {
+				clsVersion = Integer.parseInt(version);
+			} else {
+				int major = Integer.parseInt(version.substring(0, point));
+				int minor = Integer.parseInt(version.substring(point + 1));
+				clsVersion = JavaVersion.getRaw(major, minor);
+			}
+			classData.setVersion(clsVersion);
+		} catch (Exception e) {
+			throw new RaungAsmException("Failed to parse class version number: " + version, e);
+		}
 		parser.lineEnd();
 	}
 
