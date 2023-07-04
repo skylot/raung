@@ -297,33 +297,11 @@ public class MethodDirectives {
 				break;
 			}
 			case "full": {
-				parser.lineEnd();
-				List<Object> locals = new ArrayList<>();
-				List<Object> stack = new ArrayList<>();
-				while (true) {
-					String token = parser.skipToToken();
-					if (token == null) {
-						throw new RaungAsmException("Unexpected end of .stack directive");
-					}
-					if (token.equals(".end")) {
-						parser.consumeToken("stack");
-						break;
-					}
-					switch (token) {
-						case "local":
-							parser.readInt();
-							locals.add(parseStackType(parser.readToken(), parser, methodData));
-							break;
-						case "stack":
-							parser.readInt();
-							stack.add(parseStackType(parser.readToken(), parser, methodData));
-							break;
-					}
-					parser.lineEnd();
-				}
-				mv.visitFrame(Opcodes.F_FULL,
-						locals.size(), locals.toArray(new Object[0]),
-						stack.size(), stack.toArray(new Object[0]));
+				parseCompleteFrame(Opcodes.F_FULL, parser, methodData, mv);
+				break;
+			}
+			case "new": {
+				parseCompleteFrame(Opcodes.F_NEW, parser, methodData, mv);
 				break;
 			}
 
@@ -331,6 +309,36 @@ public class MethodDirectives {
 				throw new RaungAsmException("Unexpected stack type: " + type);
 		}
 		parser.lineEnd();
+	}
+
+	private static void parseCompleteFrame(int frameType, RaungParser parser, MethodData methodData, MethodVisitor mv) {
+		parser.lineEnd();
+		List<Object> locals = new ArrayList<>();
+		List<Object> stack = new ArrayList<>();
+		while (true) {
+			String token = parser.skipToToken();
+			if (token == null) {
+				throw new RaungAsmException("Unexpected end of .stack directive");
+			}
+			if (token.equals(".end")) {
+				parser.consumeToken("stack");
+				break;
+			}
+			switch (token) {
+				case "local":
+					parser.readInt();
+					locals.add(parseStackType(parser.readToken(), parser, methodData));
+					break;
+				case "stack":
+					parser.readInt();
+					stack.add(parseStackType(parser.readToken(), parser, methodData));
+					break;
+			}
+			parser.lineEnd();
+		}
+		mv.visitFrame(frameType,
+				locals.size(), locals.toArray(new Object[0]),
+				stack.size(), stack.toArray(new Object[0]));
 	}
 
 	private static Object parseStackType(String token, RaungParser parser, MethodData methodData) {

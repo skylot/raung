@@ -40,6 +40,15 @@ public class IntegrationTest {
 		}
 	}
 
+	protected String runChecksForClassFile(String clsFilePath) {
+		try {
+			return runChecksFor(Paths.get(clsFilePath));
+		} catch (Exception e) {
+			fail("Check failed", e);
+			return null;
+		}
+	}
+
 	protected String runChecksForRaung() {
 		return runChecksForRaung(this.getClass().getSimpleName());
 	}

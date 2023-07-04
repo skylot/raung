@@ -1,0 +1,153 @@
+.version 196653  # Java 1.1
+.class public final super b
+
+.field public static a [[B
+
+.field public static a B
+
+.field public static b B
+
+.field public static b [[B
+
+.field public static c B
+
+.field public static d B
+
+.field public static a Z
+
+.method public static a(I)V
+    .max stack 5
+    .max locals 3
+
+    getstatic b a B
+    getstatic b b B
+    iadd
+    i2b
+    putstatic b a B
+    getstatic b a B
+    bipush 24
+    if_icmple :L0
+    iconst_0
+    putstatic b a B
+    bipush 12
+    istore 1
+  :L1
+    .stack new
+        local 0 int
+        local 1 int
+    .end stack
+    iload 1
+    iconst_1
+    if_icmplt :L2
+    iconst_0
+    istore 2
+  :L3
+    .stack new
+        local 0 int
+        local 1 int
+        local 2 int
+    .end stack
+    iload 2
+    bipush 12
+    if_icmpge :L4
+    getstatic b a [[B
+    iload 2
+    aaload
+    iload 1
+    getstatic b a [[B
+    iload 2
+    aaload
+    iload 1
+    iconst_1
+    isub
+    baload
+    bastore
+    iinc 2 1
+    goto :L3
+  :L4
+    .stack new
+        local 0 int
+        local 1 int
+        local 2 int
+    .end stack
+    iinc 1 -1
+    goto :L1
+  :L2
+    .stack new
+        local 0 int
+        local 1 int
+    .end stack
+    iload 0
+    invokestatic b b (I)V
+  :L0
+    .stack new
+        local 0 int
+    .end stack
+    getstatic b a Z
+    ifeq :L5
+    getstatic b c B
+    getstatic b d B
+    iadd
+    i2b
+    putstatic b c B
+    getstatic b c B
+    bipush 24
+    if_icmple :L5
+    iconst_0
+    putstatic b c B
+    bipush 12
+    istore 1
+  :L6
+    .stack new
+        local 0 int
+        local 1 int
+    .end stack
+    iload 1
+    iconst_1
+    if_icmplt :L7
+    iconst_0
+    istore 2
+  :L8
+    .stack new
+        local 0 int
+        local 1 int
+        local 2 int
+    .end stack
+    iload 2
+    bipush 12
+    if_icmpge :L9
+    getstatic b b [[B
+    iload 2
+    aaload
+    iload 1
+    getstatic b b [[B
+    iload 2
+    aaload
+    iload 1
+    iconst_1
+    isub
+    baload
+    bastore
+    iinc 2 1
+    goto :L8
+  :L9
+    .stack new
+        local 0 int
+        local 1 int
+        local 2 int
+    .end stack
+    iinc 1 -1
+    goto :L6
+  :L7
+    .stack new
+        local 0 int
+        local 1 int
+    .end stack
+    iload 0
+    invokestatic b b (I)V
+  :L5
+    .stack new
+        local 0 int
+    .end stack
+    return
+.end method

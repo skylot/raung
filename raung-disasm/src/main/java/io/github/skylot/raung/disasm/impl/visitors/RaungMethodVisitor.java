@@ -127,21 +127,30 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 			case Opcodes.F_FULL:
 				rw.add("full");
-				rw.setIndent(writer.getIndent() + 2);
-				for (int i = 0; i < numStack; i++) {
-					rw.startLine("stack ").add(i).space().add(formatStackType(stack[i]));
-				}
-				for (int i = 0; i < numLocal; i++) {
-					rw.startLine("local ").add(i).space().add(formatStackType(local[i]));
-				}
-				rw.setIndent(writer.getIndent());
-				rw.startLine(".end stack");
+				writeCompleteFrame(rw, numLocal, local, numStack, stack);
+				break;
+
+			case Opcodes.F_NEW:
+				rw.add("new");
+				writeCompleteFrame(rw, numLocal, local, numStack, stack);
 				break;
 
 			default:
 				throw new RaungDisasmException("Unexpected frame type: " + type);
 		}
 		insns.add(rw.getCode());
+	}
+
+	private void writeCompleteFrame(RaungWriter rw, int numLocal, Object[] local, int numStack, Object[] stack) {
+		rw.setIndent(writer.getIndent() + 2);
+		for (int i = 0; i < numStack; i++) {
+			rw.startLine("stack ").add(i).space().add(formatStackType(stack[i]));
+		}
+		for (int i = 0; i < numLocal; i++) {
+			rw.startLine("local ").add(i).space().add(formatStackType(local[i]));
+		}
+		rw.setIndent(writer.getIndent());
+		rw.startLine(".end stack");
 	}
 
 	private String formatStackType(Object value) {
