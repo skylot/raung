@@ -15,12 +15,10 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'adopt'
-          java-version: 8
+          distribution: temurin
+          java-version: 11
 
-      - uses: burrunan/gradle-cache-action@v1
-        name: Build with Gradle
-        env:
-          TERM: dumb
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2
         with:
-          arguments: clean build dist --warning-mode=all
+          arguments: build dist

@@ -13,6 +13,9 @@ trim_trailing_whitespace = true
 
 max_line_length = 120
 
+[*.yml]
+indent_style = space
+indent_size = 2
 
 [*.bat]
 end_of_line = crlf
