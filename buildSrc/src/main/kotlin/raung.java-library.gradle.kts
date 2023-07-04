@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-	api("org.slf4j:slf4j-api:2.0.6")
+	api("org.slf4j:slf4j-api:2.0.7")
 }
 
 group = "io.github.skylot"

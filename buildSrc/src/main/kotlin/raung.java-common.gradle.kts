@@ -12,17 +12,15 @@ java {
 }
 
 repositories {
-	mavenLocal()
 	mavenCentral()
 }
 
 dependencies {
-
-	testImplementation("ch.qos.logback:logback-classic:1.3.5")
+	testImplementation("ch.qos.logback:logback-classic:1.4.8")
 	testImplementation("org.assertj:assertj-core:3.24.2")
 
-	testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
-	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+	testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {

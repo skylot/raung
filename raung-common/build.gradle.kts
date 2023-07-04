@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-	api("org.ow2.asm:asm:9.4")
+	api("org.ow2.asm:asm:9.5")
 
-	compileOnlyApi("org.jetbrains:annotations:24.0.0")
+	compileOnlyApi("org.jetbrains:annotations:24.0.1")
 }
