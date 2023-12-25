@@ -9,11 +9,11 @@
 Similar to [Krakatau](https://github.com/Storyyeller/Krakatau) and [Smali](https://github.com/JesusFreke/smali),
 based on [ASM](https://asm.ow2.io/) library.
 
-:exclamation: Warning: this project at a very early stage of development, many features not yet finished and syntax not stable.
-
+> [!WARNING]
+> This project at a very early stage of development, many features not yet finished and syntax not stable.
 
 ### Syntax example:
-```
+```java
 .version 52
 .class public HelloWorld
 .source "HelloWorld.java"
