@@ -6,5 +6,5 @@ dependencies {
 	testImplementation(project(":raung-asm"))
 	testImplementation(project(":raung-disasm"))
 
-	testCompileOnly("org.jetbrains:annotations:24.0.1")
+	testCompileOnly("org.jetbrains:annotations:24.1.0")
 }

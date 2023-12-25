@@ -8,8 +8,8 @@ dependencies {
 	implementation(project(":raung-asm"))
 	implementation(project(":raung-disasm"))
 
-	implementation("info.picocli:picocli:4.7.4")
-	implementation("ch.qos.logback:logback-classic:1.4.8")
+	implementation("info.picocli:picocli:4.7.5")
+	implementation("ch.qos.logback:logback-classic:1.4.14")
 }
 
 application {
