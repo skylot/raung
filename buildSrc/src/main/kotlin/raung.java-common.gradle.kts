@@ -7,8 +7,8 @@ group = "io.github.skylot.raung"
 version = System.getenv("RAUNG_VERSION") ?: "dev"
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
 }
 
 repositories {
