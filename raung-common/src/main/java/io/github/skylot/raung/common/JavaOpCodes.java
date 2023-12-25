@@ -195,8 +195,8 @@ public class JavaOpCodes {
 		add(0xa5, "if_acmpeq", JUMP);
 		add(0xa6, "if_acmpne", JUMP);
 		add(0xa7, "goto", JUMP);
-		add(0xa8, "jsr", UNKNOWN);
-		add(0xa9, "ret", UNKNOWN);
+		add(0xa8, "jsr", JUMP);
+		add(0xa9, "ret", VAR);
 		add(0xaa, "tableswitch", SWITCH);
 		add(0xab, "lookupswitch", SWITCH);
 		add(0xac, "ireturn", NO_ARGS);
@@ -227,6 +227,7 @@ public class JavaOpCodes {
 		add(0xc5, "multianewarray", NEW_MULTI_ARRAY);
 		add(0xc6, "ifnull", JUMP);
 		add(0xc7, "ifnonnull", JUMP);
+		add(0xc9, "jsr_w", JUMP);
 
 		alias("switch", 0xaa);
 	}
