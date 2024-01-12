@@ -47,8 +47,9 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitParameter(String name, int access) {
-		writer.startLine(".param").space().addString(name)
-				.space().add(RaungAccessFlags.format(access, RaungAccessFlags.Scope.PARAM));
+		writer.startLine(".param")
+				.space().add(RaungAccessFlags.format(access, RaungAccessFlags.Scope.PARAM))
+				.add(name);
 	}
 
 	@Override

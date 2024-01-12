@@ -33,6 +33,7 @@ public enum Directive {
 	THROW(".throw", SCOPE_METHOD),
 	LINE(".line", SCOPE_METHOD),
 	LOCAL(".local", SCOPE_METHOD),
+	PARAM(".param", SCOPE_METHOD),
 	STACK(".stack", SCOPE_METHOD),
 	CATCH(".catch", SCOPE_METHOD),
 	END(".end", SCOPE_ALL);

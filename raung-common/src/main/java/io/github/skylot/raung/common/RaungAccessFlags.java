@@ -20,6 +20,7 @@ public class RaungAccessFlags {
 	public static final int ANNOTATION = 0x2000;
 	public static final int ENUM = 0x4000;
 	public static final int MODULE = 0x8000;
+	public static final int MANDATED = 0x8000;
 	public static final int CONSTRUCTOR = 0x10000;
 	public static final int DECLARED_SYNCHRONIZED = 0x20000;
 
@@ -72,6 +73,12 @@ public class RaungAccessFlags {
 			code.append("native ");
 		}
 		switch (scope) {
+			case PARAM:
+				if (hasFlag(flags, MANDATED)) {
+					code.append("mandated ");
+				}
+				break;
+
 			case METHOD:
 				if (hasFlag(flags, SYNCHRONIZED)) {
 					code.append("synchronized ");

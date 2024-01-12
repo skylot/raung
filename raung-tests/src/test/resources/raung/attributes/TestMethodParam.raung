@@ -1,0 +1,19 @@
+.version 52  # Java 8
+.class attributes/TestMethodParam
+
+.field private docName Ljava/lang/String;
+
+.method public setDocName(Ljava/lang/String;)V
+    .param final docName
+    .max stack 2
+    .max locals 2
+
+    .local 0 "this" attributes/TestMethodParam
+    .local 1 "docName" Ljava/lang/String;
+    .line 275
+    aload 0
+    aload 1
+    putfield attributes/TestMethodParam docName Ljava/lang/String;
+    .line 276
+    return
+.end method

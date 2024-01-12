@@ -36,6 +36,7 @@ public class AccFlagsParser {
 
 		add("transient", RaungAccessFlags.TRANSIENT, Scope.FIELD);
 		add("volatile", RaungAccessFlags.VOLATILE, Scope.FIELD);
+		add("mandated", RaungAccessFlags.MANDATED, Scope.PARAM);
 	}
 
 	private static final class AccFlagsInfo {

@@ -49,7 +49,11 @@ public class FieldDirectives {
 	}
 
 	private static void parseDirectives(RaungParser parser, FieldData field) {
-		Directive nextToken = Directive.parseToken(parser.peekToken());
+		String token = parser.peekToken();
+		if (token == null) {
+			return;
+		}
+		Directive nextToken = Directive.parseToken(token);
 		if (nextToken == null || !nextToken.isAllowedInField()) {
 			return;
 		}

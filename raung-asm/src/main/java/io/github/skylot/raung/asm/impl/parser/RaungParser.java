@@ -107,8 +107,14 @@ public class RaungParser implements Closeable {
 
 	public String peekToken() {
 		String token = skipToToken();
-		pushTokenBack(token);
+		if (token != null) {
+			pushTokenBack(token);
+		}
 		return token;
+	}
+
+	public boolean hasToken() {
+		return consumeNext() == TokenType.TOKEN;
 	}
 
 	@Nullable
@@ -174,7 +180,10 @@ public class RaungParser implements Closeable {
 	public int readAccessFlags(RaungAccessFlags.Scope scope) {
 		int accFlags = 0;
 		while (true) {
-			String token = readToken();
+			if (consumeNext() != TokenType.TOKEN) {
+				break;
+			}
+			String token = consumeToken();
 			int flag = AccFlagsParser.parse(token, scope);
 			if (flag == -1) {
 				pushTokenBack(token);

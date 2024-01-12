@@ -33,6 +33,7 @@ import static io.github.skylot.raung.common.Directive.INSN_ANNOTATION;
 import static io.github.skylot.raung.common.Directive.LINE;
 import static io.github.skylot.raung.common.Directive.LOCAL;
 import static io.github.skylot.raung.common.Directive.MAX;
+import static io.github.skylot.raung.common.Directive.PARAM;
 import static io.github.skylot.raung.common.Directive.PARAM_ANNOTATION;
 import static io.github.skylot.raung.common.Directive.SIGNATURE;
 import static io.github.skylot.raung.common.Directive.STACK;
@@ -50,6 +51,7 @@ public class MethodDirectives {
 		map.put(MAX, MethodDirectives::processMax);
 		map.put(LINE, MethodDirectives::processLine);
 		map.put(LOCAL, MethodDirectives::processLocal);
+		map.put(PARAM, MethodDirectives::processParam);
 		map.put(STACK, MethodDirectives::processStack);
 		map.put(CATCH, MethodDirectives::processCatch);
 		map.put(ANNOTATION, AnnotationParser::process);
@@ -149,6 +151,13 @@ public class MethodDirectives {
 				throw new RaungAsmException("Unknown max type: '" + type + "'. Should be 'stack' or 'locals'");
 		}
 		parser.lineEnd();
+	}
+
+	private static void processParam(RaungParser parser, MethodData methodData) {
+		int flags = parser.readAccessFlags(Scope.PARAM);
+		String name = parser.readToken();
+		parser.lineEnd();
+		methodData.getAsmMethodVisitor().visitParameter(name, flags);
 	}
 
 	private static void processLocal(RaungParser parser, MethodData methodData) {
