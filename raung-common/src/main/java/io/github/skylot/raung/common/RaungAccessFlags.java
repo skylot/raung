@@ -1,5 +1,10 @@
 package io.github.skylot.raung.common;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class RaungAccessFlags {
 	public static final int PUBLIC = 0x1;
 	public static final int PRIVATE = 0x2;
@@ -24,6 +29,9 @@ public class RaungAccessFlags {
 	public static final int CONSTRUCTOR = 0x10000;
 	public static final int DECLARED_SYNCHRONIZED = 0x20000;
 
+	private static final List<AccFlagsInfo> FLAGS_LIST = new ArrayList<>();
+	private static final Map<String, AccFlagsInfo> FLAGS_MAP = new HashMap<>();
+
 	public enum Scope {
 		CLASS(1),
 		FIELD(2),
@@ -42,88 +50,88 @@ public class RaungAccessFlags {
 		}
 	}
 
-	public static boolean hasFlag(int flags, int flagValue) {
-		return (flags & flagValue) != 0;
+	private static final class AccFlagsInfo {
+		String name;
+		int accessFlag;
+		int scopeFlags;
+
+		public AccFlagsInfo(String name, int accessFlag, int scopeFlags) {
+			this.name = name;
+			this.accessFlag = accessFlag;
+			this.scopeFlags = scopeFlags;
+		}
+	}
+
+	static {
+		add("public", RaungAccessFlags.PUBLIC, Scope.ANY);
+		add("private", RaungAccessFlags.PRIVATE, Scope.ANY);
+		add("protected", RaungAccessFlags.PROTECTED, Scope.ANY);
+		add("static", RaungAccessFlags.STATIC, Scope.ANY);
+		add("final", RaungAccessFlags.FINAL, Scope.ANY);
+		add("synthetic", RaungAccessFlags.SYNTHETIC, Scope.ANY);
+		add("super", RaungAccessFlags.SUPER, Scope.CLASS);
+
+		add("interface", RaungAccessFlags.INTERFACE, Scope.CLASS);
+		add("annotation", RaungAccessFlags.ANNOTATION, Scope.CLASS);
+		add("module", RaungAccessFlags.MODULE, Scope.CLASS);
+
+		add("enum", RaungAccessFlags.ENUM, Scope.CLASS, Scope.FIELD);
+
+		add("abstract", RaungAccessFlags.ABSTRACT, Scope.CLASS, Scope.METHOD);
+
+		add("constructor", RaungAccessFlags.CONSTRUCTOR, Scope.METHOD);
+		add("synchronized", RaungAccessFlags.SYNCHRONIZED, Scope.METHOD);
+		add("varargs", RaungAccessFlags.VARARGS, Scope.METHOD);
+		add("bridge", RaungAccessFlags.BRIDGE, Scope.METHOD);
+		add("native", RaungAccessFlags.NATIVE, Scope.METHOD);
+		add("strict", RaungAccessFlags.STRICT, Scope.METHOD);
+
+		add("transient", RaungAccessFlags.TRANSIENT, Scope.FIELD);
+		add("volatile", RaungAccessFlags.VOLATILE, Scope.FIELD);
+		add("mandated", RaungAccessFlags.MANDATED, Scope.PARAM);
+	}
+
+	private static void add(String name, int accessFlag, Scope scope) {
+		add(new AccFlagsInfo(name, accessFlag, scope.getFlag()));
+	}
+
+	private static void add(String name, int accessFlag, Scope scope, Scope secondScope) {
+		add(new AccFlagsInfo(name, accessFlag, scope.getFlag() | secondScope.getFlag()));
+	}
+
+	private static void add(AccFlagsInfo info) {
+		FLAGS_LIST.add(info);
+		FLAGS_MAP.put(info.name, info);
+	}
+
+	public static int parseToken(String token, Scope scope) {
+		AccFlagsInfo info = FLAGS_MAP.get(token);
+		if (info == null || (info.scopeFlags & scope.getFlag()) == 0) {
+			return -1;
+		}
+		return info.accessFlag;
 	}
 
 	public static String format(int flags, Scope scope) {
 		if (flags == 0) {
 			return "";
 		}
-		StringBuilder code = new StringBuilder();
-		if (hasFlag(flags, PUBLIC)) {
-			code.append("public ");
+		int remFlags = flags;
+		int scopeFlag = scope.getFlag();
+		StringBuilder sb = new StringBuilder();
+		for (AccFlagsInfo flag : FLAGS_LIST) {
+			if (hasFlag(remFlags, flag.accessFlag) && hasFlag(flag.scopeFlags, scopeFlag)) {
+				remFlags &= ~flag.accessFlag;
+				sb.append(flag.name).append(' ');
+			}
 		}
-		if (hasFlag(flags, PRIVATE)) {
-			code.append("private ");
+		if (remFlags != 0) {
+			sb.append("0x").append(Integer.toHexString(remFlags)).append(' ');
 		}
-		if (hasFlag(flags, PROTECTED)) {
-			code.append("protected ");
-		}
-		if (hasFlag(flags, STATIC)) {
-			code.append("static ");
-		}
-		if (hasFlag(flags, FINAL)) {
-			code.append("final ");
-		}
-		if (hasFlag(flags, ABSTRACT)) {
-			code.append("abstract ");
-		}
-		if (hasFlag(flags, NATIVE)) {
-			code.append("native ");
-		}
-		switch (scope) {
-			case PARAM:
-				if (hasFlag(flags, MANDATED)) {
-					code.append("mandated ");
-				}
-				break;
+		return sb.toString();
+	}
 
-			case METHOD:
-				if (hasFlag(flags, SYNCHRONIZED)) {
-					code.append("synchronized ");
-				}
-				if (hasFlag(flags, BRIDGE)) {
-					code.append("bridge ");
-				}
-				if (hasFlag(flags, VARARGS)) {
-					code.append("varargs ");
-				}
-				break;
-
-			case FIELD:
-				if (hasFlag(flags, VOLATILE)) {
-					code.append("volatile ");
-				}
-				if (hasFlag(flags, TRANSIENT)) {
-					code.append("transient ");
-				}
-				break;
-
-			case CLASS:
-				if (hasFlag(flags, MODULE)) {
-					code.append("module ");
-				}
-				if (hasFlag(flags, STRICT)) {
-					code.append("strict ");
-				}
-				if (hasFlag(flags, SUPER)) {
-					code.append("super ");
-				}
-				if (hasFlag(flags, ENUM)) {
-					code.append("enum ");
-				}
-				if (hasFlag(flags, ANNOTATION)) {
-					code.append("annotation ");
-				}
-				if (hasFlag(flags, INTERFACE)) {
-					code.append("interface ");
-				}
-				break;
-		}
-		if (hasFlag(flags, SYNTHETIC)) {
-			code.append("synthetic ");
-		}
-		return code.toString();
+	private static boolean hasFlag(int flags, int flagValue) {
+		return (flags & flagValue) != 0;
 	}
 }
