@@ -1,19 +1,21 @@
 package io.github.skylot.raung.disasm.impl.visitors.data;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Label;
+
+import io.github.skylot.raung.disasm.impl.utils.ListUtils;
 
 public class LabelData {
 	private final Label label;
 	private final String name;
 	private int insnRef;
 	private int useCount;
-	private List<LocalVar> startVars;
-	private List<LocalVar> endVars;
-	private List<TryCatchBlock> catches;
+	private @Nullable List<LocalVar> startVars;
+	private @Nullable List<LocalVar> endVars;
+	private @Nullable List<TryCatchBlock> catches;
+	private @Nullable List<Integer> lines;
 
 	public LabelData(Label label, String name) {
 		this.label = label;
@@ -46,42 +48,39 @@ public class LabelData {
 	}
 
 	public List<LocalVar> getStartVars() {
-		return startVars == null ? Collections.emptyList() : startVars;
+		return ListUtils.fromNullable(startVars);
 	}
 
 	public void addStartVars(LocalVar var) {
-		if (startVars == null) {
-			startVars = new ArrayList<>();
-		}
-		startVars.add(var);
+		this.startVars = ListUtils.addToNullable(startVars, var);
 	}
 
 	public List<LocalVar> getEndVars() {
-		return endVars == null ? Collections.emptyList() : endVars;
+		return ListUtils.fromNullable(endVars);
 	}
 
 	public void addEndVar(LocalVar var) {
-		if (endVars == null) {
-			endVars = new ArrayList<>();
-		}
-		endVars.add(var);
+		this.endVars = ListUtils.addToNullable(endVars, var);
 	}
 
 	public List<TryCatchBlock> getCatches() {
-		return catches == null ? Collections.emptyList() : catches;
+		return ListUtils.fromNullable(catches);
 	}
 
 	public void addCatch(TryCatchBlock block) {
-		if (catches == null) {
-			catches = new ArrayList<>();
-		}
-		catches.add(block);
+		this.catches = ListUtils.addToNullable(catches, block);
 	}
 
-	public boolean isUsed() {
-		return getUseCount() != 0
-				|| !getStartVars().isEmpty()
-				|| !getEndVars().isEmpty()
-				|| !getCatches().isEmpty();
+	public List<Integer> getLines() {
+		return ListUtils.fromNullable(lines);
+	}
+
+	public void setLine(int line) {
+		this.lines = ListUtils.addToNullable(lines, line);
+	}
+
+	@Override
+	public String toString() {
+		return name + " at " + insnRef;
 	}
 }

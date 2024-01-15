@@ -27,6 +27,6 @@ public class ValidateDisasmArgs {
 		if (args.isAutoFrames()) {
 			args.autoMax(true);
 		}
-		LOG.debug("Effective args: {}", args);
+		LOG.trace("Effective args: {}", args);
 	}
 }

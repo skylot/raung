@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
@@ -30,6 +29,7 @@ import io.github.skylot.raung.disasm.impl.visitors.data.TryCatchBlock;
 public class RaungMethodVisitor extends MethodVisitor {
 	private final RaungClassVisitor classVisitor;
 	private final RaungWriter writer;
+	private final String mthShortId;
 
 	private final RaungWriter tempWriter = new RaungWriter();
 
@@ -39,10 +39,11 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	private int catchCount;
 
-	public RaungMethodVisitor(RaungClassVisitor classVisitor) {
+	public RaungMethodVisitor(RaungClassVisitor classVisitor, String mthShortId) {
 		super(classVisitor.getApi());
 		this.classVisitor = classVisitor;
 		this.writer = classVisitor.getWriter();
+		this.mthShortId = mthShortId;
 	}
 
 	@Override
@@ -69,11 +70,13 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
-		RaungWriter rw = new RaungWriter().setIndent(writer.getIndent());
-		RaungAnnotationVisitor av = RaungAnnotationVisitor.buildInsnAnnotation(classVisitor, rw, typeRef, typePath, descriptor, visible);
 		// attach annotation to last instruction
-		insnAttachments.put(insns.size() - 1, rw);
-		return av;
+		int insn = insns.size() - 1;
+		if (insn < 0) {
+			throw new RaungDisasmException("No instructions to attach annotation");
+		}
+		RaungWriter rw = insnAttachments.computeIfAbsent(insn, i -> new RaungWriter().setIndent(writer.getIndent()));
+		return RaungAnnotationVisitor.buildInsnAnnotation(classVisitor, rw, typeRef, typePath, descriptor, visible);
 	}
 
 	@Override
@@ -312,14 +315,16 @@ public class RaungMethodVisitor extends MethodVisitor {
 	@Override
 	public void visitLineNumber(int line, Label start) {
 		if (addDebugInfo()) {
-			insns.add(".line " + line);
+			LabelData ld = getLabelData(start);
+			ld.setLine(line);
 		}
 	}
 
 	@Override
 	public void visitLabel(Label label) {
 		LabelData ld = getLabelData(label);
-		ld.setInsnRef(insns.size());
+		ld.setInsnRef(insns.size()); // for next insn
+		// System.out.println("DISASM visit label: " + ld);
 	}
 
 	@Override
@@ -334,23 +339,31 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitEnd() {
-		Map<Integer, LabelData> labelsMap = labels.values().stream()
-				.filter(LabelData::isUsed)
-				.collect(Collectors.toMap(LabelData::getInsnRef, ld -> ld));
-		int insnsCount = insns.size();
-		for (int i = 0; i < insnsCount; i++) {
-			LabelData labelData = labelsMap.get(i);
-			if (labelData != null) {
-				handleLabelDataBeforeInsn(labelData);
+		try {
+			Map<Integer, LabelData> labelsMap = new HashMap<>();
+			for (LabelData ld : labels.values()) {
+				LabelData prevLabel = labelsMap.put(ld.getInsnRef(), ld);
+				if (prevLabel != null) {
+					throw new RaungDisasmException("Duplicate label, " + ld + ", prev: " + prevLabel);
+				}
 			}
-			addInsnAttachments(i);
-			writer.startLine(insns.get(i));
-			if (labelData != null) {
-				handleLabelDataAfterInsn(labelData, i == insnsCount - 1);
+			int insnsCount = insns.size();
+			for (int i = 0; i < insnsCount; i++) {
+				LabelData labelData = labelsMap.get(i);
+				if (labelData != null) {
+					handleLabelDataBeforeInsn(labelData);
+				}
+				addInsnAttachments(i);
+				writer.startLine(insns.get(i));
+				if (labelData != null) {
+					handleLabelDataAfterInsn(labelData, i == insnsCount - 1);
+				}
 			}
+			writer.setIndent(0);
+			writer.startLine(".end method");
+		} catch (Exception e) {
+			throw new RaungDisasmException("Failed to process method: " + this, e);
 		}
-		writer.setIndent(0);
-		writer.startLine(".end method");
 	}
 
 	private void addInsnAttachments(int insnOffset) {
@@ -375,19 +388,20 @@ public class RaungMethodVisitor extends MethodVisitor {
 				writer.space().add(startVar.getSignature());
 			}
 		}
-		if (!labelData.getCatches().isEmpty()) {
-			for (TryCatchBlock catchBlock : labelData.getCatches()) {
-				String type = catchBlock.getType();
-				writer.startLine(Directive.CATCH);
-				if (classVisitor.getArgs().isSaveCatchNumber()) {
-					writer.add('@').add(catchBlock.getId()).space();
-				}
-				writer.add(type == null ? "all" : type)
-						.space().add(catchBlock.getStart().getName())
-						.space().add("..")
-						.space().add(catchBlock.getEnd().getName())
-						.space().add("goto").space().add(catchBlock.getHandler().getName());
+		for (TryCatchBlock catchBlock : labelData.getCatches()) {
+			String type = catchBlock.getType();
+			writer.startLine(Directive.CATCH);
+			if (classVisitor.getArgs().isSaveCatchNumber()) {
+				writer.add('@').add(catchBlock.getId()).space();
 			}
+			writer.add(type == null ? "all" : type)
+					.space().add(catchBlock.getStart().getName())
+					.space().add("..")
+					.space().add(catchBlock.getEnd().getName())
+					.space().add("goto").space().add(catchBlock.getHandler().getName());
+		}
+		for (Integer line : labelData.getLines()) {
+			writer.startLine(".line ").add(line);
 		}
 	}
 
@@ -413,5 +427,10 @@ public class RaungMethodVisitor extends MethodVisitor {
 
 	private boolean addDebugInfo() {
 		return !classVisitor.getArgs().isIgnoreDebugInfo();
+	}
+
+	@Override
+	public String toString() {
+		return classVisitor + "->" + mthShortId;
 	}
 }

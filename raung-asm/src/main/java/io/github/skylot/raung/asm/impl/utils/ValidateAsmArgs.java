@@ -30,7 +30,7 @@ public class ValidateAsmArgs {
 	}
 
 	public static void processOptions(RaungAsmBuilder args) {
-		LOG.debug("Effective args: {}", args);
+		LOG.trace("Effective args: {}", args);
 	}
 
 	private static Path getOutDirFromInputs(List<Path> inputs) {

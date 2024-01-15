@@ -157,7 +157,7 @@ public class IntegrationTest {
 				}
 				out.write(buffer, 0, r);
 			}
-			return out.toString(StandardCharsets.UTF_8.name());
+			return out.toString(StandardCharsets.UTF_8);
 		}
 	}
 
@@ -167,11 +167,11 @@ public class IntegrationTest {
 		System.out.println("===================================");
 	}
 
-	private void compareResults(String message, String firstStr, String secondStr) {
+	protected void compareResults(String message, String firstStr, String secondStr) {
 		if (!firstStr.equals(secondStr)) {
 			// print short diff
 			printDiff(message, firstStr, secondStr);
-			// Intellij Idea will suggest to view nice full diff
+			// IntelliJ IDEA will suggest viewing nice full diff
 			assertEquals(firstStr, secondStr, message);
 		}
 	}

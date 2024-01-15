@@ -4,7 +4,7 @@ import io.github.skylot.raung.common.Directive;
 
 @SuppressWarnings("UnusedReturnValue")
 public class RaungWriter {
-	public static final String NL = System.getProperty("line.separator");
+	public static final String NL = System.lineSeparator();
 	public static final String INDENT_STR = "  ";
 
 	private final StringBuilder sb = new StringBuilder();

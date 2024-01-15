@@ -28,4 +28,9 @@ public class LocalVar {
 	public String getSignature() {
 		return signature;
 	}
+
+	@Override
+	public String toString() {
+		return name + " : " + type;
+	}
 }

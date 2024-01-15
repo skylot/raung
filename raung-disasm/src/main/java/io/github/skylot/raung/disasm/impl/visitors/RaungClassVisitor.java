@@ -159,7 +159,7 @@ public class RaungClassVisitor extends ClassVisitor {
 		if (signature != null) {
 			writer.startLine(Directive.SIGNATURE).add(signature);
 		}
-		return new RaungMethodVisitor(this);
+		return new RaungMethodVisitor(this, name + descriptor);
 	}
 
 	@Override
@@ -185,5 +185,10 @@ public class RaungClassVisitor extends ClassVisitor {
 
 	public String getResult() {
 		return writer.getCode();
+	}
+
+	@Override
+	public String toString() {
+		return clsFullName;
 	}
 }
