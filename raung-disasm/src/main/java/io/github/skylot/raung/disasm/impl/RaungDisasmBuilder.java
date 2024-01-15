@@ -126,6 +126,15 @@ public class RaungDisasmBuilder implements IRaungDisasm {
 	}
 
 	@Override
+	public String executeForBytes(byte[] bytes) {
+		try {
+			return RaungDisasmExecutor.processBytes(this, bytes);
+		} catch (Exception e) {
+			throw new RaungDisasmException("Failed to process input bytes", e);
+		}
+	}
+
+	@Override
 	public String toString() {
 		return "RaungDisasmBuilder{"
 				+ "inputs=" + inputs

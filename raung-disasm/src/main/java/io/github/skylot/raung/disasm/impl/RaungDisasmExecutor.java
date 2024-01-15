@@ -39,6 +39,11 @@ public class RaungDisasmExecutor {
 		return runForInputStream(args, in).getResult();
 	}
 
+	public static String processBytes(RaungDisasmBuilder args, byte[] bytes) {
+		ValidateDisasmArgs.processOptions(args);
+		return execute(args, new ClassReader(bytes)).getResult();
+	}
+
 	private static RaungClassVisitor runForSingleClass(RaungDisasmBuilder args, Path clsFile) {
 		try (InputStream in = new BufferedInputStream(Files.newInputStream(clsFile, StandardOpenOption.READ))) {
 			return runForInputStream(args, in);
@@ -48,7 +53,10 @@ public class RaungDisasmExecutor {
 	}
 
 	private static RaungClassVisitor runForInputStream(RaungDisasmBuilder args, InputStream in) throws IOException {
-		ClassReader reader = new ClassReader(in);
+		return execute(args, new ClassReader(in));
+	}
+
+	private static RaungClassVisitor execute(RaungDisasmBuilder args, ClassReader reader) {
 		RaungClassVisitor visitor = new RaungClassVisitor(args);
 		reader.accept(visitor, 0); // TODO: add option for skip frames (if '.auto frames' will be used)
 		return visitor;

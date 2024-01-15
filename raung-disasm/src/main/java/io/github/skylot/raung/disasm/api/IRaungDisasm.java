@@ -71,4 +71,10 @@ public interface IRaungDisasm {
 	 * Any set inputs or output will be ignored.
 	 */
 	String executeForInputStream(InputStream input);
+
+	/**
+	 * Single mode: process specified input class file bytes and return result as string.
+	 * Any set inputs or output will be ignored.
+	 */
+	String executeForBytes(byte[] bytes);
 }

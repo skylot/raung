@@ -1,6 +1,8 @@
 package io.github.skylot.raung.asm.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +61,17 @@ public class RaungAsmBuilder implements IRaungAsm {
 			throw e;
 		} catch (Exception e) {
 			throw new RaungAsmException("Failed to process input stream", e);
+		}
+	}
+
+	@Override
+	public byte[] executeForString(String code) {
+		try (InputStream input = new ByteArrayInputStream(code.getBytes(StandardCharsets.UTF_8))) {
+			return RaungAsmExecutor.processInputStream(this, input, "<input>");
+		} catch (RaungAsmException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new RaungAsmException("Failed to process input code", e);
 		}
 	}
 

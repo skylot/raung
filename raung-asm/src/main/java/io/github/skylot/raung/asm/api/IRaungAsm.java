@@ -24,19 +24,25 @@ public interface IRaungAsm {
 	IRaungAsm output(Path out);
 
 	/**
-	 * Preform assemble according to provided options.
+	 * Execute according to provided options.
 	 */
 	void execute();
 
 	/**
-	 * Single mode: process specified input file and return result as byte array.
+	 * Single mode: process specified input file and return result as a byte array.
 	 * Any set inputs or output will be ignored.
 	 */
 	byte[] executeForSingleClass(Path input);
 
 	/**
-	 * Single mode: process specified input stream and return result as byte array.
+	 * Single mode: process specified input stream and return result as a byte array.
 	 * Any set inputs or output will be ignored.
 	 */
 	byte[] executeForInputStream(InputStream input);
+
+	/**
+	 * Single mode: process specified input raung code and return result as a byte array.
+	 * Any set inputs or output will be ignored.
+	 */
+	byte[] executeForString(String raungCodeStr);
 }
