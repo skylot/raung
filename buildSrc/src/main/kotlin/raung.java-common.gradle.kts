@@ -16,10 +16,10 @@ repositories {
 }
 
 dependencies {
-	testImplementation("ch.qos.logback:logback-classic:1.4.14")
-	testImplementation("org.assertj:assertj-core:3.25.1")
+	testImplementation("ch.qos.logback:logback-classic:1.5.7")
+	testImplementation("org.assertj:assertj-core:3.26.3")
 
-	testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+	testImplementation("org.junit.jupiter:junit-jupiter:5.11.0")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

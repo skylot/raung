@@ -7,5 +7,5 @@ dependencies {
 	testImplementation(project(":raung-disasm"))
 
 	testCompileOnly("org.jetbrains:annotations:24.1.0")
-	testImplementation("commons-io:commons-io:2.15.1")
+	testImplementation("commons-io:commons-io:2.16.1")
 }
